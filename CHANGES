@@ -1,0 +1,21 @@
+Version 0.7.7 - 27-February-06 - Cleared .o files from distribution (oops :-( )
+Version 0.7.6 - 26-August-05 - Fixed username/password wipe bug in shodbc
+              - fix submitted by Walter Haslbeck (haslbeck AT t-online DOT de)
+Version 0.7.5 - 14 July-05 - SQLite (version 2) added
+Version 0.7.4 - 12 July-05 - Updates doc to include "eval" in "eval set $ROWS"
+Version 0.7.3 - 10-June-05 - Included code to try and close shsql cleanly
+version 0.7.3 - 7-May-05 - Bug fix in sarg.c and shsqlinp.c and install.sh
+version 0.7.2 - 7-May-05 - Bug fix in shsql
+Version 0.7.1 - 31-January-05 - Bug fix release in shmysql
+Version 0.7 - 30-January-05 - Included following:
+	    - Addition of freetds engine for MS-SQL and Sybase
+	    - included of --csv, --pipe, --colon, --tab and --shell output
+	      formatting commands to shsql
+	    - Added shsqlinp routine
+	    - General bug fixes/tidy ups
+Version 0.6 - 10-November-04 - General tidy up of code
+Version 0.5 - 6-November-04 - Repackaged tar file
+Version 0.4 - 5-November-04 - Fixed message.h
+Version 0.3 - 5-November-04 - Corrected documentation errors
+Version 0.2 - 4-November-04 - First published
+

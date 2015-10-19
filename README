@@ -1,0 +1,43 @@
+Welcome to the world of ShellSQL....
+
+This is version 0.7
+
+This package is a provides a means for a LINUX/UNIX shell script to connect to
+SQL databases and to execute SQL commands in an easy and integrated manner.
+
+Currently the SQL engines supported are PostgreSQL, MySQL, SQLite (version 2
+and 3) and ODBC.  More may be added at a later date if requested.
+
+The installation instructons are in INSTALL.
+
+There is documentation in README.overview, and README.commands.  There
+is a very short list of commands and examples in README.summary.
+
+It is released under the GPL, as described in LICENSE.
+
+I am Eddy Macnaghten, and can be contacted at eddy@edlsystems.com, if you
+have problems you can try and email me and if I have time I will help.
+
+
+Enjoy.
+
+Version 0.7.6 - 26-August-05 - Fixed username/password wipe bug in shodbc
+              - fix submitted by Walter Haslbeck (haslbeck AT t-online DOT de)
+Version 0.7.5 - 14 July-05 - SQLite (version 2) added
+Version 0.7.4 - 12 July-05 - Updates doc to include "eval" in "eval set $ROWS"
+Version 0.7.3 - 10-June-05 - Included code to try and close shsql cleanly
+			     and tidy up things on event of an error/interrupt
+Version 0.7.2 - 07-May-05 - Bug fix for shsql
+Version 0.7.1 - 31-January-05 - Bug fix for shmysql
+Version 0.7 - 30-January-05 - Included following:
+	    - Addition of freetds engine for MS-SQL and Sybase
+	    - included of --csv, --pipe, --colon, --tab and --shell output
+	      formatting commands to shsql
+	    - Added shsqlinp routine
+	    - General bug fixes/tidy ups
+Version 0.6 - 10-November-04 - General tidy up of code
+Version 0.5 - 6-November-04 - Repackaged tar file
+Version 0.4 - 5-November-04 - Fixed message.h
+Version 0.3 - 5-November-04 - Corrected documentation errors
+Version 0.2 - 4-November-04 - First published
+

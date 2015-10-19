@@ -1,0 +1,41 @@
+SHELLSQL - Installation Instructions
+
+A - Prerequisites
+
+Tou need to have the development libraries of the SQL engines installed on the
+computer prior to installing shsql.  These can be obtained the engines' web
+sites, at time of writing these consist of.....
+
+postgres - http://www.postgresql.org  (Tested with version 7.3.4)
+mysql    - http://www.mysql.org       (Tested with verision 4.1.0)
+sqlite3  - http://www.sqlite.org      (Tested with version 3.0.8)
+                                      (NB - sqlite version 2 is not supported)
+odbc     - http://www.unixodbc.org    (Tested with version 2.2.10)
+                                      (NB - Tested with ODBC 3 only)
+freetds  - http://www.freetds.org     (Tested with 0.62.4)
+                                      (Read README.freetds before installing)
+
+
+B - Installation
+
+1 - Untar the distribution into a directory.
+
+2 - Log in as root
+
+3 - Run the shellscript:
+
+    ./install.sh
+
+    and an interactive menu will appear.
+
+
+3a - Alternatively run install.sh with any combination of the following
+     parameters....
+
+    ./install.sh postgres mysql sqlite3 odbc tools
+
+    where "postgres", "mysql",  "sqlite3" and "ODBC" will install the
+    appropriate engine(s), and "tools" will just install the tools.  (The
+    tools are installed automatically if one or more of the engines are
+    specified).
+    

@@ -1,0 +1,40 @@
+This contains examples of the commands
+
+SQL COMMANDS
+~~~~~~~~~~~~
+
+shsqlstart     SHSQL=postgres
+               export SHSQL
+               HANDLE=`shsqlstart dbname=mydb`
+
+shsqlpostgres  HANDLE=`shpostgres dbname=mydb`
+
+shmysql        HANDLE=`shmysql dbname=mydb`
+
+shsqlite3      HANDLE=`shsqlite3 mydb.db`
+
+shsqlite       HANDLE=`shsqlite mydb.db`
+
+shodbc         HANDLE=`shodbc user password connectionstring`
+
+shfreetds      HANDLE=`shfreetds server=myserver user=username password=mypassword`
+
+
+shsql          shsql $HANDLE "select fld1, fld2 from mytable"
+
+shsqlinp       shsqlinp $HANDLE --csv "insert into a(b,c) values (?,?)" < file
+
+shsqlend       shsqlend $HANDLE
+
+
+
+UTILITIES
+~~~~~~~~~
+
+shsqlesc       MYSQLPAR=`shsqlesc $MYINPUTPAR`
+
+shsqlline      shsql $HANDLE "select a, b, c from mytable" | (
+                      while ROW=`sqlline`
+                      do
+                            eval set $ROW
+                            ..........

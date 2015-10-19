@@ -1,0 +1,127 @@
+<html>
+<head>
+<title>ShellSQL - SQL for shell scripts</title>
+<link REL="stylesheet" href="edstyle.css">
+</head>
+<body>
+<table border=1 width=100%>
+<tr>
+<td align=center><a href="index.html">Introduction</a></td>
+<td align=center><a href="overview.html">Overview</a></td>
+<td align=center><a href="commands.html">Documentation</a></td>
+<td align=center><a href="summary.html">Summary</a></td>
+
+<td align=center><a href="http://www.sourceforge.net/projects/shellsql">Sourceforge</a></td>
+<td align=center><a href="ftp://ftp.edlsystems.com/shellsql">Download</a></td>
+</tr>
+</table>
+<p>
+<font size=+4>ShellSQL - SQL for Shell Scripts</font>
+<p>
+ShellSQL is a suite of programs designed to enable LINUX/UNIX shell scripts to
+connect to SQL engines and execute SQL queries and commands in a simple 
+way enabling intergration with the rest of the script.  For example, it
+can do things like..
+
+<table width=100% border = 0>
+ <tr>
+  <td align="center">
+    <table border=1 cellpadding=5>
+      <tr>
+       <td>
+<pre>
+#!/bin/sh
+
+HANDLE=`shpostgres dbname=mydb`
+
+shsql $HANDLE "begin"
+
+for ARG in $*
+do
+
+        shsql $HANDLE "insert into mytable (fld1, fld2)" \
+                       "values (nextval('myseq'), '$ARG')"
+
+done
+
+shsql $HANDLE "commit"
+
+if [ $# -gt 0 ]
+then
+
+        ROWS=`shsql $HANDLE "select count(*) from mytable"`
+
+        echo "No of rows now in table is" $ROWS
+
+fi
+
+shsqlend $HANDLE
+
+</pre>
+     </td>
+    </tr>
+   </table>
+  </td>
+ </tr>
+</table>
+
+
+For details
+on how it hangs together
+have a look at the <a href="overview.html">overview</a>.
+</p>
+The following database engines are supported...
+<ol>
+<li><a href="http://www.postgresql.org">PostgreSQL</a></li>
+<li><a href="http://www.mysql.org">MySQL</a></li>
+<li><a href="http://www.sqlite.org">SQLite3 and SQLite version 2</a></li>
+<li><a href="http://www.unixodbc.org">Unix ODBC</a></li>
+<li><a href="http://www.freetds.org">FreeTDS</a></li>
+</ol>
+More may well be added if people request them.
+<p>
+
+The software can be <a href="ftp://ftp.edlsystems.com/shellsql">downloaded
+from here</a>.  There is also some <a href="commands.html">detailed documentation</a>
+as well as a brief <a href="summary.html">usage summary of the commands</a>.
+</p><p>
+The programs sares released under the <a href="COPYING.txt">GNU Public License</a>.
+</p><p>
+
+If you have problems, or find bugs, please email me on <a href="mailto:eddy@edlsystems.com">edddy@edlsystems.com</a>,
+if there is sufficient interest I will start a mailing list. <p>
+
+Enjoy
+<p>
+
+<pre>
+Version History
+~~~~~~~~~~~~~~~
+
+Version 0.7.7 - 27-February-07 - Removed .o files from distribution (oops! :-( )
+Version 0.7.6 - 26-August-05 - Fixed username/password wipe bug in shodbc
+              - fix submitted by Walter Haslbeck (haslbeck AT t-online DOT de)
+Version 0.7.5 - 14-July-05 - SQLite (version 2) added
+Version 0.7.4 - 12-July-05 - Updates doc to include "eval" in "eval set $ROWS"
+Version 0.7.3 - 10-June-05 - Included code to try and close shsql cleanly
+version 0.7.3 - 7-May-05 - Bug fix in sarg.c and shsqlinp.c and install.sh
+version 0.7.2 - 7-May-05 - Bug fix in shsql
+Version 0.7.1 - 31-January-05 - Bug fix release in shmysql
+Version 0.7 - 30-January-05 - Included following:
+	    - Addition of freetds engine for MS-SQL and Sybase
+	    - included of --csv, --pipe, --colon, --tab and --shell output
+	      formatting commands to shsql
+	    - Added shsqlinp routine
+	    - General bug fixes/tidy ups
+Version 0.6 - 10-November-04 - General tidy up of code
+Version 0.5 - 6-November-04 - Repackaged tar file
+Version 0.4 - 5-November-04 - Fixed message.h
+Version 0.3 - 5-November-04 - Corrected documentation errors
+Version 0.2 - 4-November-04 - First published
+
+</pre>
+<A href="http://sourceforge.net"> <IMG src="http://sourceforge.net/sflogo.php?group_id=123489&amp;type=5" width="210" height="62" border="0" alt="SourceForge.net Logo" /></A>
+</body>
+</html>
+
+

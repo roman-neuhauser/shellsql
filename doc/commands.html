@@ -1,0 +1,713 @@
+<html>
+<head>
+<title>ShellSQL Commands</title>
+<link REL="stylesheet" href="edstyle.css">
+</head>
+
+<body>
+<table border=1 width=100%>
+<tr>
+<td align=center><a href="index.html">Introduction</a></td>
+<td align=center><a href="overview.html">Overview</a></td>
+<td align=center><a href="commands.html">Documentation</a></td>
+<td align=center><a href="summary.html">Summary</a></td>
+
+<td align=center><a href="http://www.sourceforge.net/projects/shellsql">Sourceforge</a></td>
+<td align=center><a href="ftp://ftp.edlsystems.com/shellsql">Download</a></td>
+</tr>
+</table>
+<p>
+<font size="+3">
+ShellSQL - Commands
+</font>
+<p>
+
+<b>1 - Connection Commands.</b>
+</p><p>
+
+<b>1.1 - Introduction</b>
+</p><p>
+
+These sets of commands establish a connection to the database.  They all
+operate in a similar way in so far as much they initiate a background
+SQL client and output a handle that is used in subsequent ShellSQL commands
+to use it. For example....
+</p><p>
+</p><pre>        HANDLE=`shpostgres dbname=test`
+</pre>
+<p>
+Note the backquotes there. 
+</p><p>
+
+On success it returns 0.
+On an error they output nothing and effect a return code
+of 1.   An error message may appear on the standard error output.
+</p><p>
+
+
+<b>1.2 - shpostgres</b>
+</p><p>
+
+This initiates a PostgreSQL connection.  The syntax is....
+</p><p>
+</p><pre>        shpostgres connectarg [connectarg] ...
+</pre>
+<p>
+
+The connectarg(s) are concatonated together separated by spaces.  So for
+example, the following is perfectlly legal....
+
+</p><p>
+</p><pre>        shpostgres dbname=test user=myuser
+</pre>
+<p>
+
+which does the same thing as
+
+</p><p>
+
+</p><pre>        shpostgres "dbname=test user=myuser"
+</pre>
+<p>
+Either way, the arguments of the engne take the form of <code>name=value</code>
+where <code>name</code> is one of the following.  The are the same as the ones used
+in <code>PQconnectdb()</code> in PostgreSQL's libpq library.  Most have sensible defaults.
+</p><p>
+<table border="0" cellpadding="5">
+<tbody><tr>
+<td align="left"><code>host</code></td>
+<td align="left">The host name of the server</td>
+</tr>
+<tr>
+<td align="left"><code>hostaddr</code></td>
+<td align="left">The host IP address of the server</td>
+</tr>
+<tr>
+<td align="left"><code>port</code></td>
+<td align="left">The TCP port number to connect to on the server</td>
+</tr>
+<tr>
+<td align="left"><code>dbname</code></td>
+<td align="left">The database name</td>
+</tr>
+<tr>
+<td align="left"><code>user</code></td>
+<td align="left">The user name for the connection</td>
+</tr>
+<tr>
+<td align="left"><code>password</code></td>
+<td align="left">The password for the user</td>
+</tr>
+<tr>
+<td align="left"><code>connect_tomeout</code></td>
+<td align="left">The connection timeout in seconds, 0 is indefinate</td>
+</tr>
+<tr>
+<td align="left"><code>options</code></td>
+<td align="left">Command line options to be sent to the server.  See Postgres documentation for more details.</td>
+</tr>
+<tr>
+<td align="left"><code>sslmode</code></td>
+<td align="left">the SSL mode for the connection, This is either <code>disable</code>, <code>allow</code>, <code>prefer</code> or <code>require</code>.</td>
+</tr>
+<tr>
+<td align="left"><code>service</code></td>
+<td align="left">Name of service that holds extra parameters.  See Postgres documentation for more details.</td>
+</tr>
+</tbody></table>
+</p><p>
+
+
+If you are using the password assignment in the connection then you should
+use the "password=mysecret" string as a separate parameter.  The reason for
+this is that "shpostgres" will detect it and blank it out in the process
+table so someone else doing a "ps" cannot see it.
+</p><p>
+
+
+<b>1.3 - shmysql</b>
+</p><p>
+
+This initiates a MySQL connection.  The syntax is....
+</p><p>
+</p><pre>        shmysql connectarg [connectarg] ...
+</pre>
+<p>
+
+The connectarg(s) are concatonated together separated by spaces.  So for
+example, the following is perfectlly legal....
+
+</p><p>
+</p><pre>        shmysql dbname=test user=myuser
+</pre>
+<p>
+
+which does the same thing as
+
+</p><p>
+
+</p><pre>        shmysql "dbname=test user=myuser"
+</pre>
+<p>
+Either way, the arguments of the engne take the form of <code>name=value</code>
+where <code>name</code> is one of the following.  Most have sensible defaults.
+</p><p>
+<table border="0" cellpadding="5">
+<tbody><tr>
+<td align="left"><code>host</code></td>
+<td align="left">The host name or IP address of the server</td>
+</tr>
+<tr>
+<td align="left"><code>port</code></td>
+<td align="left">The TCP port number to connect to on the server</td>
+</tr>
+<tr>
+<td align="left"><code>dbname</code></td>
+<td align="left">The database name</td>
+</tr>
+<tr>
+<td align="left"><code>user</code></td>
+<td align="left">The user name for the connection</td>
+</tr>
+<tr>
+<td align="left"><code>password</code></td>
+<td align="left">The password for the user</td>
+</tr>
+<tr>
+<td align="left"><code>socket</code></td>
+<td align="left">The name of the UNIX socket if applicable</td>
+</tr>
+<tr>
+<td align="left"><code>flag</code></td>
+<td align="left">Usually not defined or zero, but can be used in special circumstances, see the documentation in MySQL for further information.</td>
+</tr>
+</tbody></table>
+</p><p>
+
+
+If you are using the password assignment in the connection then you should
+use the "password=mysecret" string as a separate parameter.  The reason for
+this is that "shpostgres" will detect it and blank it out in the process
+table so someone else doing a "ps" cannot see it.
+</p><p>
+
+
+
+<b>1.4 - shsqlite3</b>
+</p><p>
+
+This initiates a SQLITE3 connection.  The syntax is
+
+</p><p>
+</p><pre>        shsqlite3 databasefilename
+</pre>
+<p>
+
+Where databasefilename is the name of the SQLITE3 database to open.
+</p><p>
+
+<b>1.5 - shsqlite</b>
+</p><p>
+
+This initiates a SQLITE version 2 connection.  The syntax is
+
+</p><p>
+</p><pre>        shsqlite databasefilename
+</pre>
+<p>
+
+Where databasefilename is the name of the SQLITE version 2 database to open.  
+</p><p>
+
+
+<b>1.6 - shodbc</b>
+</p><p>
+
+This initiates an ODBC connection.  The syntax is
+
+</p><p>
+</p><pre>        shodbc user password connectionstriing
+</pre>
+<p>
+
+where the user and password (which need to be there own parameters, NOT
+incorporated in the connection string) are just that, and the connection
+string is a (number of) parameters that constitute the connection string.
+</p><p>
+
+There is another parameter that can be passed using the environment
+variable ODBC_TIMEOUT, which contains the login timeout in seconds.
+This defaults to 20 if not defined.
+</p><p>
+
+<b>1.7 - shfreetds</b>
+</p><p>
+
+This initiates a FreeTDS connection, which can be used to connect to MS-SQL
+and SyBase (amongst others).  The syntax is....
+
+</p><p>
+</p><pre>        shfreetds connectarg [connectarg] ...
+</pre>
+<p>
+
+The connectarg(s) are concatonated together separated by spaces.  So for
+example, the following is perfectlly legal....
+</p><p>
+
+</p><pre>        shfreetds server=test dbname=test user=myuser
+</pre>
+<p>
+
+which does the same thing as
+</p><p>
+
+</p><pre>        shfreetds "server=test dbname=test user=myuser"
+</pre>
+<p>
+
+Either way, the arguments of the engne take the form of name=value where name
+is one of the following.  Most have sensible defaults.
+</p><p>
+<table border="0" cellpadding="5">
+<tbody><tr>
+<tr><td align=left><code>server</code></td>
+<td align=left>The server name (as in the freetds.conf file) - required.
+
+<tr><td align=left><code>port</code></td>
+<td align=left>The TCP port number to connect to on the server</td></tr>
+
+<tr><td align=left><code>dbname</code></td>
+<td align=left>The database name</td></tr>
+
+<tr><td align=left><code>user</code></td>
+<td align=left>The user name for the connection</td></tr>
+
+<tr><td align=left><code>password</code></td>
+<td align=left>The password for the user</td></tr>
+
+<tr><td align=left><code>appname</code></td>
+<td align=left>The application name used for the connection</td></tr>
+
+<tr><td align=left><code>host</code></td>
+<td align=left>The host name or IP address of the server</td></tr>
+</tbody></table>
+
+</p><p>
+
+If you are using the password assignment in the connection then you should
+use the "password=mysecret" string as a separate parameter.  The reason for
+this is that "shfreetds" will detect it and blank it out in the process
+table so someone else doing a "ps" cannot see it.
+
+</p><p>
+To use this it is important that you have read the FreeTDS implementation
+documentation, especially in creating the "freetds.conf" file correctly.
+Also, at time of writing, freetds's "ct" library interface has a bug in it and
+should be corrected and recompiled.  This is documented in the "README.freetds"
+file.
+
+</p><p>
+
+<b>1.8 - shsqlstart</b>
+
+</p><p>
+This is a generic connection routine.  This looks at the environment
+variable "SHSQL", and expects it to be "postgres", "sqlite3" or any of
+the other engines  then
+starts the respective program with the appropriate
+parameters.  If it is not recognizeable it starts using "shpostgres".
+
+</p><p>
+An example of this working.....
+
+</p><p>
+</p><pre>        SHPROG=postgres
+        export SHPROG
+
+        HANDLE=`shsqlstart dbname=test`
+</pre>
+<p>
+
+and so on.
+
+</p><p>
+shsqlstart is a small wrapper program.  It expects the appropriate connection
+program to be in the same directory as it ("shsqlstart").  This is the
+reccomended way of starting "shsql" connection as the "SHSQL" environment
+variables can be used in other utilities.
+</p><p>
+
+<b>2 - Execution command</b>
+
+</p><p>
+<b>2.1 - shsql</b>
+</p><p>
+
+The command shsql performs the actual SQL queries.  As it's first
+parameter it takes the handle obtained from the connection routine
+above.  Subsequent parameters represent the query itself.  So an
+example here is....
+
+</p><p>
+</p><pre>        shsql $HANDLE "insert into a (b, c) values ('x', 'y')"
+</pre>
+<p>
+
+Alternatively the SQL parameter can be split.  shsql concatonates
+them together separating them with a space....
+
+</p><p>
+</p><pre>        shsql $HANDLE "insert into a (b, c)" \
+                      "values ('x', 'y')"
+</pre>
+<p>
+
+Should the query generate rows, then each row is represented by
+a value inclosed by double quotes, each field on the row being 
+separated with a space, and each row separated by a new line character.
+</p><p>
+
+Therefore, the following query....
+
+</p><p>
+</p><pre>        shsql $HANDLE "select keyfield, datafield from mydata"
+</pre>
+<p>
+
+could print on the standard output something like
+
+</p><p>
+</p><pre>        "FRED" "FRED BLOGS"
+        "DAVID" "DAVID COPERFIELD"
+        "JOAN" "JOAN BLOGS"
+</pre>
+<p>
+
+Should one of the fields contain a double quote character then that
+is replaced by 2 double quote characters together.
+</p><p>
+
+
+
+However - a means to alter the output is to place an optional format parameter
+after the handle, this is one of the following:
+</p>
+<pre>        --csv     = Comma Separated Variable output
+        --colon   = Colon(: character) delimeted output - not quoted
+        --pipe    = Pipe (| character)  delimited output - not quoted
+        --tab     = Tab delimited output - not quoted
+        --shell   = Shell (the default, desribed above) output
+</pre>
+<p>
+
+For example...
+</p><p>
+</p>
+<pre>        shsql $HANDLE --csv "select keyfield, datafield from mydata"
+</pre>
+<p>
+
+would produce..
+</p><p>
+</p>
+<pre>        "FRED","FRED BLOGS"
+        "DAVID","DAVID COPERFIELD"
+        "JOAN","JOAN BLOGS"
+</pre>
+<p>
+
+or
+</p><p>
+</p>
+<pre>        shsql $HANDLE --pipe "select keyfield, datafield from mydata"
+</pre>
+</p>
+
+would produce
+</p><p>
+</p>
+<pre>        FRED|FRED BLOGS
+        DAVID|DAVID COPERFIELD
+        JOAN|JOAN BLOGS
+</pre>
+<p>
+If no parameters (apart from the HANDLE) are provided then <code>shsql</code>
+takes the standar input as the SQL command:
+
+</p><p>
+</p><pre>        echo "insert into a (b, c) values('x', 'y')" | shsql $HANDLE
+</pre>
+<p>
+
+<b>2.2 - Caveats</b>
+</p><p>
+
+At time of writing no more than one "shsql" command can be actime on
+the same handle (or connection) at any one time.  Should transaction
+processing be required you should save the output of the query to a file...
+
+</p><p>
+</p><pre>
+        shsql $HANDLE "select keyfield, datafield from mydata" &gt; tempfile
+
+        # Now for the transaction processing....
+
+        cat tempfile (
+                while ROW=`shsqlline`
+                do
+                        eval set $ROW
+
+                        shsql $HANDLE "update stats" \
+                                      "set totallen = totallen + length('$2')"\
+                                      "where initialkey = substr('$1', 1, 1)"
+                done
+        )
+</pre>
+<p>
+
+or something like that.
+</p><p>
+
+
+Another caveat is that shsql does not really handle binary fields.  Should
+this be required then you should escape them in the SQL itself.
+</p><p>
+
+<b>2.3 - The shsqlinp command</b>
+</p><p>
+
+This command would primarily be used to import data into a table, though it
+can be used for other updates as well.  Primarily what it does is execute
+(the same) SQL statement for every line of standard input it receives 
+performing a rudimentary parameter substitution.  An example of thos could
+be....
+</p><p>
+</p>
+
+<pre>        shsqlinp $HANDLE "insert into mydata (keyfield, datafield)" \
+                         "values (?, ?)" \
+        &lt;&lt; _EOF
+        "JAMES" "JAMES BOND 007"
+        "MARY" "MARY QUEEN OF SCOTTS"
+        _EOF
+</pre>
+<p>
+
+
+or even
+</p><p>
+</p>
+
+<pre>        shsqlinp $HANDLE "insert into xxx (yyy, zzz) values(?, ?)" < file.txt
+</pre>
+<p>
+
+Also, perhaps an output from a shsql from another database....
+</p><p>
+</p>
+
+<pre>        shsql $HANDLE_A "select a, b from cc" | \
+        shsqlinp  $HANDLE_B "insert into cc(a, b) values(?, ?)"
+</pre>
+<p>
+
+However - please note that you cannot use this method to copy data from one
+table to another, or to perform other updates,  in the same database connection.
+The "client back end" can only execute one statement at a time, so in order to
+use ShellSQL to update a table based on another you need to go through
+a temporary file...
+</p><p>
+</p>
+
+<pre>        shsql $HANDLE "select a, b from cc"  &gt; temp.txt
+        shsqlinp  $HANDLE "insert into cc(a, b) values(?, ?)" &lt; temp.txt
+</pre>
+<p>
+
+The above will work for string, or varchar, type datatypes.  If a number is to
+be included then either casting needs to be done in the SQL command itself, or
+you can append a "#" to the "?"parameter.  To specify a string you can apend a
+"@" character, however, this is not neccessary as this is the default.
+</p><p>
+</p>
+
+<pre>        shsqlinp $HANDLE "insert into aa (numf, charf) values (?#, ?@)" &lt;&lt; _EOF
+        "123" "ORDER ONE-TWO-THREE"
+        "-2" "MINUS TWO"
+        _EOF
+</pre>
+<p>
+
+This need not be just used for importing, but can be used for updating, deleting
+or other DML type operations..
+</p><p>
+</p>
+
+<pre>        shsqlinp $HANDLE "update atable set bfield = ? where ckey = ?" &lt;&lt; _EOF
+        "NEW DATA FOR A" "KEYA"
+        "NEW DATA FOR B" "KEYB"
+        _EOF
+</pre>
+<p>
+
+The format of the input file can be controlled by an optional parameter after the
+HANDLE.  These are the same for those in shsql....
+</p>
+<pre>        --csv     = Comma Separated Variable output
+        --colon   = Colon(: character) delimeted output - not quoted
+        --pipe    = Pipe (| character)  delimited output - not quoted
+        --tab     = Tab delimited output - not quoted
+        --shell   = Shell (the default, desribed above) output
+</pre>
+<p>
+
+
+<b>3 - shsqlend</b>
+</p><p>
+
+This simply terminates the connection and background process...
+
+</p><p>
+</p><pre>        shsqlend $HANDLE
+</pre>
+<p>
+
+It is important that the handle/connection is not accessed after this
+is called.
+</p><p>
+It is important to call this however, should you do not then processes
+and message queues will remain running in the background.  Should this
+happen then these processes can be killed using the LINUX/UNIX <code>kill</code>, 
+or the LINUX <code>killall</code> command.  Though if this <i>is</i> done then
+the <code>-9</code> option should <b>not</b> be used.
+</p><p>
+
+
+<b>4 - Sundry Utilities</b>
+</p><p>
+
+<b>4.1 - Introduction</b>
+</p><p>
+
+Some utilities accompany the suite to assist with the shell scripts, these
+do not connect to the SQL client background process in the same way as the
+above but they are designed to work with the suite.
+</p><p>
+
+<b>4.2 - shsqlline</b>
+</p><p>
+
+First the technological description - this is complicated so please feel free
+to ignore it and go straight to the example below...
+</p><p>
+
+This takes a rowset as produced by a select query using "shsql" as a 
+standard input, and prints out the first row of this returning 0.  If
+the end of file is reached then it fails by returning 1.  
+</p><p>
+
+Example:
+
+</p><p>
+</p><pre>        shsql $HANDLE "select * from mytable" &gt; tempfile
+        cat tempfile | (
+                while ROW=`shsqlline`
+                do
+                        eval set $ROW
+                        ....
+
+                done
+        )
+        rm tempfile
+</pre>
+<p>
+
+This can be shoertened to...
+
+</p><p>
+</p><pre>                                      
+        shsql $HANDLE "select * from mytable"  | (
+                while ROW=`shsqlline`
+                do
+                        eval set $ROW
+                        ....
+
+                done
+        )
+</pre>
+<p>
+
+To go through it line by line.....
+
+</p><p>
+</p><pre>        shsql $HANDLE "select * from mytable"  | (
+</pre>
+<p>
+
+This runs sgsql then pipes the rowset (standartd output) to a
+sub-shell which...
+
+</p><p>
+</p><pre>                while ROW=`shsqlline`
+                do
+</pre>
+<p>
+
+goes into a loop that reads the first then next line of the rowset
+and placing it into a variable called ROW, the loop then...
+
+</p><p>
+</p><pre>                eval set $ROW
+</pre>
+<p>
+
+places the first field in $1, second in $2 and so on.  The "eval" 
+appears to be needed to properly evaluate the double quotes and
+spaces in variables.
+</p><p>
+
+
+If you have not fully uderstood this it is unimportant as long as you
+know how to enumerate the row set.
+</p><p>
+
+Please not too, that if you wish to perform other transactions on the same
+$HANDLE in the loop you need to use the "tempfile" method.
+</p><p>
+
+
+<b>4.3 - shsqlesc</b>
+</p><p>
+
+This takes as it's parameter(s) and prints on the standard output a string
+that has the quotes etc escaped suitable for string parameters in SQL queries.
+Please note it places the preceding and postceding 's on the string too.
+Bear in mind that different SQL engines use different escape routines
+so this uses the SHSQL parameter to control precisely how it
+behaves (defaulting to postgres).
+
+Example:
+
+</p><p>
+</p><pre>        SQLPAR=`shsqlesc "Bobby's Girl"`
+</pre>
+<p>
+
+would place the value
+
+</p><p>
+</p><pre>        'Bobb''s Girl'
+</pre>
+<p>
+
+including all the quotes into SQLPAR.
+</p><p>
+
+The behaviour of this command is effected by the <code>SHSQL</code>
+environment variable.  Different engines have slightly different 
+escape rules, and <code>shsqlesc</code> will alter the way
+it behaves accordingly, so <code>SHSQL</code> should be set 
+accordingly (as in the <code>shsqlstart</code> program).  If
+it is not it defaults to <code>postgres</code>.
+</p></body></html>

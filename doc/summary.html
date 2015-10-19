@@ -1,0 +1,63 @@
+<html>
+<title>
+ShellSQL Coomand Summary
+</title>
+<link REL="stylesheet" href="edstyle.css">
+</head>
+<body>
+<table border=1 width=100%>
+<tr>
+<td align=center><a href="index.html">Introduction</a></td>
+<td align=center><a href="overview.html">Overview</a></td>
+<td align=center><a href="commands.html">Documentation</a></td>
+<td align=center><a href="summary.html">Summary</a></td>
+
+<td align=center><a href="http://www.sourceforge.net/projects/shellsql">Sourceforge</a></td>
+<td align=center><a href="ftp://ftp.edlsystems.com/shellsql">Download</a></td>
+</tr>
+</table>
+<p>
+<pre>
+This contains examples of the commands
+
+SQL COMMANDS
+~~~~~~~~~~~~
+
+shsqlstart     SHSQL=postgres
+               export SHSQL
+               HANDLE=`shsqlstart dbname=mydb`
+
+shsqlpostgres  HANDLE=`shpostgres dbname=mydb`
+
+shmysql        HANDLE=`shmysql dbname=mydb`
+
+shsqlite3      HANDLE=`shsqlite3 mydb.db`
+
+shsqlite       HANDLE=`shsqlite mydb.db`
+
+shodbc         HANDLE=`shodbc user password connectionstring`
+
+shfreetds      HANDLE=`shfreetds server=myserver user=username password=mypassword`
+
+
+shsql          shsql $HANDLE "select fld1, fld2 from mytable"
+
+shsqlinp       shsqlinp $HANDLE --csv "insert into a(b,c) values (?,?)" &lt; file
+
+shsqlend       shsqlend $HANDLE
+
+
+
+UTILITIES
+~~~~~~~~~
+
+shsqlesc       MYSQLPAR=`shsqlesc $MYINPUTPAR`
+
+shsqlline      shsql $HANDLE "select a, b, c from mytable" | (
+                      while ROW=`sqlline`
+                      do
+                            eval set $ROW
+                            ..........
+</pre>
+</body>
+</html>

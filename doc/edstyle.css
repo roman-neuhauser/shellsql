@@ -1,0 +1,24 @@
+body {
+	font-family: "ariel";
+	background: white;
+	color: purple;
+}
+a, a:link, a:visited, a:hover  {
+	color: blue;
+	text-decoration: none;
+}
+a:hover {
+	background: yellow;
+}
+p.center {
+	text-align: center
+}
+
+p.cdate {
+	text-align: center;
+	font-weight: bold;
+	color: purple;
+}
+pre, code {
+	color: black;
+}

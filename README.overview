@@ -1,0 +1,243 @@
+SHSQL suite
+
+
+1 - What is it?
+
+This suit of programs is written to enable SQL to be usefully and easily
+included in UNIX or LINUX (or other POSIX family) shell scripts.
+
+Detailed documentation is in the README.commands file,  but for an overview
+it is probably best to show an example.....
+
+
+----------------------------------------------------------------------------
+	!#/bin/sh
+
+	HANDLE=`shpostgres dbname=test`
+
+	while true
+	do
+		echo "Please enter key (BLANK to quit)"
+		read KEY
+
+		if [ "$KEY" = "" ]
+		then
+			break
+		fi
+
+		echo "Please enter data"
+		read DATA
+
+
+		shsql $HANDLE \
+			"insert into mytable (keyfield, datafield)
+			 values ('$KEY', '$DATA')"
+
+	done
+
+
+	NUMROWS=`shsql $HANDLE "select count(*) from mytable"'  
+
+	echo "Table has" $NUMROWS "rows"
+
+	shsqlend $HANDLE
+
+----------------------------------------------------------------------------
+
+
+Three programs of the suite was used:
+
+1 - shpostgres: This starts a process in the background that maintains a
+PostgreSQL connection. (NB - Note the backquotes here).  The standard 
+output is a numeric "handle" representing the connection.  On error HANDLE
+would be blank.
+
+2 - shsql: This enables you to execute SQL statements.  If this is a select
+query (as in the second example) it puts the query results on the standard
+output.  (Note backquotes in that example too).
+
+3 - shsqlend:  This closes the SQL connection and terminates the process and
+cancels the handle.  It is important that this is called otherwise background
+processes, and message queues, will remain in the system. (These can be killed
+using the "kill" or "killall" command though, but do not use the "-9" option
+if you do).`
+
+The same connection is maintained for the life of the HANDLE between the
+"shpostgres" and the "shsqlend".  This means you could include temporary
+tables and other connection dependant stuff as well...
+	
+----------------------------------------------------------------------------
+	!#/bin/sh
+
+	HANDLE=`shpostgres dbname=test`
+
+	shsql $HANDLE \
+		"prepare PINS(varchar, varchar) as" \
+		"insert into mytable(keyfield, datafield)" \
+		"values (\$1, \$2)"
+
+	while true
+	do
+		echo "Please enter key (BLANK to quit)"
+		read KEY
+
+		if [ "$KEY" = "" ]
+		then
+			break
+		fi
+
+		echo "Please enter data"
+		read DATA
+
+
+		shsql $HANDLE "execute PINS ('$KEY', '$DATA')"
+
+	done
+
+	shsql $HANDLE "deallocate PINS"
+
+
+	NUMROWS=`shsql $HANDLE "select count(*) from mytable"'
+	echo "Table has" $NUMROWS "rows"
+
+	shsqlend $HANDLE
+
+----------------------------------------------------------------------------
+
+In the above, in the statement...
+
+	shsql $HANDLE \
+		"prepare PINS(varchar, varchar) as" \
+		"insert into mytable(keyfield, datafield)" \
+		"values (\$1, \$2)"
+
+you can observe that shsql can have more than 2 parameters.  What it
+does is automatically concatonate the SQL parameters placing a 
+space between each one.
+
+For a query with many columns....
+		
+
+----------------------------------------------------------------------------
+	!#/bin/sh
+
+	HANDLE=`shpostgres dbname=test`
+
+	ROW=`shsql $HANDLE "select count(*), max(length(datafield)) from mytable"'
+
+	eval set $ROW
+
+	echo "The number of rows is $1"
+	echo "The longest data filed length is $2"
+
+
+	shsqlend $HANDLE
+
+----------------------------------------------------------------------------
+
+For multiple rows, a utility called "shsqlline" is provided for.  The way
+this works is....
+
+
+----------------------------------------------------------------------------
+	!#/bin/sh
+
+	HANDLE=`shpostgres dbname=test`
+
+	shsql $HANDLE "select keyfied, datafield" \
+	              "from mydata" \
+		      "order by keyfield" | (
+
+		while ROW=`shsqlline` 
+		do
+			eval set $ROW
+			echo "Key is: $1, Data is $2"
+		done
+	)
+
+
+	shsqlend $HANDLE
+
+----------------------------------------------------------------------------
+
+The output of the above would be something like...
+
+Key is FRED, Data is FREDERICK BLOGS
+Key is DAVE, Data is DAVID COPERFIELD
+Key is JOAN, Data is JOAN DOE
+
+As shown, "shsqlline" outputs one row of the standard input, failing
+when it reaches the end-of-query.
+
+The above could also been done as....
+	
+----------------------------------------------------------------------------
+	!#/bin/sh
+
+	HANDLE=`shpostgres dbname=test`
+
+	shsql $HANDLE "select keyfied, datafield" \
+	              "from mydata" \
+		      "order by keyfield" \
+				> tempfile
+
+	(
+		while ROW=`shsqlline` 
+		do
+			eval set $ROW
+			echo "Key is: $1, Data is $2"
+		done
+
+	) < tempfile
+
+	rm tempfile
+
+	shsqlend $HANDLE
+
+----------------------------------------------------------------------------
+
+A utility - shsqlinp - has been created to inport data.  A way this would work
+would be.....
+
+----------------------------------------------------------------------------
+	!#/bin/sh
+
+	HANDLE=`shpostgres dbname=test`
+
+	shsqlinp $HANDLE --csv "insert into mydata(keyfield, keydata) values" \
+	                        "(?, ?)"  < mycsvtext.txt
+	
+	shsqlend $HANDLE
+
+----------------------------------------------------------------------------
+
+where mycsvtext.txt would contain, in CSV format
+
+"JOHN","John Bull"
+"BOND","James Bond 007"
+"HARRY","Tom and Dick too"
+
+or similar.  Further details of this command is described in the
+README.commands file.
+
+----------------------------------------------------------------------------
+
+Another utility is shsqlesc.  This takes it's parameters, escapes the quotes and
+do on, puts quotes round it and prints it on the standard output....
+
+	!#/bin/sh
+
+	....
+
+	PAR1=`shsqlesc "Bobby's Girl"`	## (back quotes here)
+
+	ssqlh $HANDLE "insert into mytable(keyfield, datafield)" \
+		    "values ('BOB', $PAR1)"
+
+	.....
+
+PAR1 in this case would contain (including quotes)....
+
+	'Bobby''s Girl'
+
+	

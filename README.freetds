@@ -1,0 +1,55 @@
+FreeTDS Installation
+~~~~~~~~~~~~~~~~~~~~
+
+To install this you need the FreeTDS package from http://www.freetds.org.
+However - there are complications that warrant it's own README file...
+
+Firstly, at time of writing, there is a bug in the ct library of FreeTDS - 
+The version used is FreeTDS 0.62.4.  It may be ficed in future dates, though
+as I am writing this it is impossible to know that (Yes - I HAVE submitted a
+patch to the project...).
+
+The bug is where the old field buffer is not cleared when a row returns a NULL
+value from a select fetch, so in that case the previous value of the row is
+retained and returned to the user as being the value of the current row.  To
+fix it the following program needs to be changed (from the FreeTDS installation
+directory)....
+
+	src/ctlib/ct.c
+
+It is in the ct_get_data() function, at about line 1988.  Here you should
+replace the line..
+
+	srclen = curcol->column_cur_size;
+
+with...
+
+	if (tds_get_null(resinfo->current_row, (item - 1)))
+		srclen = 0;
+	else
+		srclen = curcol->column_cur_size;
+
+and then (re)compile and install it as per the documentation.
+
+
+Another thing worth mentioning is the freetds.conf file.  It is required.
+The quickest and easiest way to get this done is to create a ".freetds.conf"
+file in your home directory (note the preceding dot in the file name), and
+place in it something like (withoud the indent)....
+
+
+	[global]
+		tds version = 8.0
+	[myserver]
+		host = myhost.mydomain.com
+		port = 1433
+
+Replaceing "myserver" with the server name to pass to the connection, and 
+myhost.mydomain.com with the machine name or IP address of the SQL server. 
+Port 1433 is the default port number for MS-SQL, you may wish to change it
+to 5000 for SyBase (or another number depending on the SyBase version and
+configuration).
+
+Enjoy.
+
+Edward Macnaghten - eddy (at) edlsystems (dot) com

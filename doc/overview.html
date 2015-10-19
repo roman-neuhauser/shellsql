@@ -1,0 +1,358 @@
+<html>
+<head>
+<title>ShellSQL Overview</title>
+<link REL="stylesheet" href="edstyle.css">
+</head>
+<body>
+<table border=1 width=100%>
+<tr>
+<td align=center><a href="index.html">Introduction</a></td>
+<td align=center><a href="overview.html">Overview</a></td>
+<td align=center><a href="commands.html">Documentation</a></td>
+<td align=center><a href="summary.html">Summary</a></td>
+
+<td align=center><a href="http://www.sourceforge.net/projects/shellsql">Sourceforge</a></td>
+<td align=center><a href="ftp://ftp.edlsystems.com/shellsql">Download</a></td>
+</tr>
+</table>
+<p>
+<font size="+3">
+ShellSQL suite Overview
+</font>
+<p>
+
+
+Question - What is it?
+</p><p>
+
+This suit of programs is written to enable SQL to be usefully and easily
+included in UNIX or LINUX (or other POSIX family) shell scripts.
+</p><p>
+
+Detailed documentation is in the <a href="commands.html">Commands page</a>,  but for an overview
+it is probably best to show an example.....
+</p><p>
+<table width="100%" border="0">
+ <tbody><tr>
+  <td align="center">
+    <table border="1" cellpadding="5" width="90%">
+      <tbody><tr>
+       <td align="left">
+<pre>!#/bin/sh
+
+HANDLE=`shpostgres dbname=test`
+
+while true
+do
+        echo "Please enter key (BLANK to quit)"
+        read KEY
+
+        if [ "$KEY" = "" ]
+        then
+                break
+        fi
+
+        echo "Please enter data"
+        read DATA
+
+
+        shsql $HANDLE \
+                "insert into mytable (keyfield, datafield)
+                 values ('$KEY', '$DATA')"
+
+done
+
+
+NUMROWS=`shsql $HANDLE "select count(*) from mytable"'  
+
+echo "Table has" $NUMROWS "rows"
+
+shsqlend $HANDLE
+</pre>
+     </td>
+    </tr>
+   </tbody></table>
+  </td>
+ </tr>
+</tbody></table>
+
+Three programs of the suite was used:
+</p><ol>
+
+<li><code>shpostgres:</code> This starts a process in the background that maintains a
+PostgreSQL connection. (NB - Note the backquotes here).  The standard 
+output is a numeric "handle" representing the connection.  On error HANDLE
+would be blank.</li>
+
+<li><code>shsql:</code> This enables you to execute SQL statements.  If this is a select
+query (as in the second example) it puts the query results on the standard
+output.  (Note backquotes in that example too).</li>
+
+<li> <code>shsqlend:</code>  This closes the SQL connection and terminates the
+process and cancels the handle.  It is important that this is called otherwise
+background processes, and message queues, will remain in the system.  (These can
+be killed using the "kill" or "killall" command though, but do not use the "-9" 
+option if you do).</li>
+
+</ol>
+
+The same connection is maintained for the life of the HANDLE between the
+<code>shpostgres</code> and the <code>shsqlend</code>.  This means you could include temporary
+tables and other connection dependant stuff as well...
+<p>
+<table width="100%" border="0">
+ <tbody><tr>
+  <td align="center">
+    <table border="1" cellpadding="5" width="90%">
+      <tbody><tr>
+       <td>
+<pre>!#/bin/sh
+
+HANDLE=`shpostgres dbname=test`
+
+shsql $HANDLE \
+        "prepare PINS(varchar, varchar) as" \
+        "insert into mytable(keyfield, datafield)" \
+        "values (\$1, \$2)"
+
+while true
+do
+        echo "Please enter key (BLANK to quit)"
+        read KEY
+
+        if [ "$KEY" = "" ]
+        then
+                break
+        fi
+
+        echo "Please enter data"
+        read DATA
+
+
+        shsql $HANDLE "execute PINS ('$KEY', '$DATA')"
+
+done
+
+shsql $HANDLE "deallocate PINS"
+
+
+NUMROWS=`shsql $HANDLE "select count(*) from mytable"'
+echo "Table has" $NUMROWS "rows"
+
+shsqlend $HANDLE
+</pre>
+     </td>
+    </tr>
+   </tbody></table>
+  </td>
+ </tr>
+</tbody></table>
+
+In the above, in the statement...
+</p><pre>
+shsql $HANDLE \
+        "prepare PINS(varchar, varchar) as" \
+        "insert into mytable(keyfield, datafield)" \
+        "values (\$1, \$2)"
+
+</pre>
+
+you can observe that <code>shsql</code> can have more than 2 parameters.  What it
+does is automatically concatonate the SQL parameters placing a 
+space between each one.
+<p>
+
+For a query with many columns....
+</p><p>
+<table width="100%" border="0">
+ <tbody><tr>
+  <td align="center">
+    <table border="1" cellpadding="5" width="90%">
+      <tbody><tr>
+       <td>
+<pre>!#/bin/sh
+
+HANDLE=`shpostgres dbname=test`
+
+ROW=`shsql $HANDLE "select count(*), max(length(datafield)) from mytable"'
+
+eval set $ROW
+
+echo "The number of rows is $1"
+echo "The longest data filed length is $2"
+
+
+shsqlend $HANDLE
+</pre>
+     </td>
+    </tr>
+   </tbody></table>
+  </td>
+ </tr>
+</tbody></table>
+
+For multiple rows, a utility called <code>shsqlline</code> is provided for.  The way
+this works is....
+</p><p>
+<table width="100%" border="0">
+ <tbody><tr>
+  <td align="center">
+    <table border="1" cellpadding="5" width="90%">
+      <tbody><tr>
+       <td>
+<pre>!#/bin/sh
+
+HANDLE=`shpostgres dbname=test`
+
+shsql $HANDLE "select keyfied, datafield" \
+              "from mydata" \
+              "order by keyfield" | (
+
+        while ROW=`shsqlline` 
+        do
+                eval set $ROW
+                echo "Key is: $1, Data is $2"
+        done
+)
+
+
+shsqlend $HANDLE
+</pre>
+     </td>
+    </tr>
+   </tbody></table>
+  </td>
+ </tr>
+</tbody></table>
+
+The output of the above would be something like...
+
+</p><pre>Key is FRED, Data is FREDERICK BLOGS
+Key is DAVE, Data is DAVID COPERFIELD
+Key is JOAN, Data is JOAN DOE
+</pre>
+
+As shown, <code>shsqlline</code> outputs one row of the standard input, failing
+when it reaches the end-of-query.
+<p>
+
+The above could also been done as....
+</p><p>
+<table width="100%" border="0">
+ <tbody><tr>
+  <td align="center">
+    <table border="1" cellpadding="5" width="90%">
+      <tbody><tr>
+       <td>
+<pre>!#/bin/sh
+
+HANDLE=`shpostgres dbname=test`
+
+shsql $HANDLE "select keyfied, datafield" \
+              "from mydata" \
+              "order by keyfield" \
+                        &gt; tempfile
+
+(
+        while ROW=`shsqlline` 
+        do
+                eval set $ROW
+                echo "Key is: $1, Data is $2"
+        done
+
+) &lt; tempfile
+
+rm tempfile
+
+shsqlend $HANDLE
+</pre>
+     </td>
+    </tr>
+   </tbody></table>
+  </td>
+ </tr>
+</tbody></table>
+
+A utility - shsqlinp - has been created to inport data.  A way this would work
+would be.....
+
+</p><p>
+<table width="100%" border="0">
+ <tbody><tr>
+  <td align="center">
+    <table border="1" cellpadding="5" width="90%">
+      <tbody><tr>
+       <td>
+<pre>	!#/bin/sh
+
+	HANDLE=`shpostgres dbname=test`
+
+	shsqlinp $HANDLE --csv "insert into mydata(keyfield, keydata) values" \
+	                        "(?, ?)"  &lt; mycsvtext.txt
+	
+	shsqlend $HANDLE
+</pre>
+     </td>
+    </tr>
+   </tbody></table>
+  </td>
+ </tr>
+</tbody></table>
+
+where mycsvtext.txt would contain, in CSV format..
+</p><p>
+<table width="100%" border="0">
+ <tbody><tr>
+  <td align="center">
+    <table border="1" cellpadding="5" width="90%">
+      <tbody><tr>
+       <td>
+
+<pre>"JOHN","John Bull"
+"BOND","James Bond 007"
+"HARRY","Tom and Dick too"
+</pre>
+     </td>
+    </tr>
+   </tbody></table>
+  </td>
+ </tr>
+</tbody></table>
+
+or similar.  Further details of this command is described in the
+<a href="commands.html">Commands page</a>.
+</p><p>
+Another utility is <code>shsqlesc</code>.  This takes it's parameters, escapes the quotes and
+do on, puts quotes round it and prints it on the standard output....
+</p><p>
+<table width="100%" border="0">
+ <tbody><tr>
+  <td align="center">
+    <table border="1" cellpadding="5" width="90%">
+      <tbody><tr>
+       <td>
+<pre>!#/bin/sh
+
+....
+
+PAR1=`shsqlesc "Bobby's Girl"`        ## (back quotes here)
+
+shsql $HANDLE "insert into mytable(keyfield, datafield)" \
+            "values ('BOB', $PAR1)"
+
+.....
+</pre>
+     </td>
+    </tr>
+   </tbody></table>
+  </td>
+ </tr>
+</tbody></table>
+PAR1 in this case would contain (including quotes)....
+</p><p>
+</p><pre>'Bobby''s Girl'
+</pre>
+<p>
+Enjoy.
+</p>
+</body></html>
