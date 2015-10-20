@@ -46,7 +46,7 @@
 
 
 int getargpos(strarr *arr, char *s);
-int getline(strarr *arr, char format, char fchr);
+int shsql_getline(strarr *arr, char format, char fchr);
 int out_put_c(strarr *arr, char c);
 
 
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
 	 */
 
 
-	while(getline(arrin, format, fchr) >= 0)
+	while(shsql_getline(arrin, format, fchr) >= 0)
 	{
 		j = 0;
 		i = 0;
@@ -371,7 +371,7 @@ int out_put_c(strarr *arr, char c)
 		
 	
 
-int getline(strarr *arr, char format, char fchr)
+int shsql_getline(strarr *arr, char format, char fchr)
 {
 	int ic;
 	char c;
