@@ -1,17 +1,56 @@
+BINDIR = /usr/bin
+
 HFILES=message.h string.h shellsql.h strarr.h sarg.h
 
 CC=gcc
 
 CFLAGS=-g
 
-default:
-	echo -e "\n\n\n\n\nPlease edit and run install.sh script\n\n\n\n\n"
+INSTALL_BIN = install -m 0755
 
+programs = $(drivers) $(tools)
+
+drivers = shfreetds shmysql shodbc shpostgres shsqlite shsqlite3
+tools = shsql shsqlend shsqlline shsqlstart shsqlesc shsqlinp
+
+.PHONY: all
+all: $(drivers) $(tools)
+
+.PHONY: install
+install: all
+	$(INSTALL_BIN) -t $(DESTDIR)$(BINDIR) $(programs)
+
+.PHONY: install-tools
+install-tools: $(tools)
+	$(INSTALL_BIN) -t $(DESTDIR)$(BINDIR) $(tools)
+
+.PHONY: install-shfreetds
+install-freetds: shfreetds
+	$(INSTALL_BIN) -t $(DESTDIR)$(BINDIR) shfreetds
+
+.PHONY: install-shmysql
+install-mysql: shmysql
+	$(INSTALL_BIN) -t $(DESTDIR)$(BINDIR) shmysql
+
+.PHONY: install-shodbc
+install-odbc: shodbc
+	$(INSTALL_BIN) -t $(DESTDIR)$(BINDIR) shodbc
+
+.PHONY: install-shpostgres
+install-postgres: shpostgres
+	$(INSTALL_BIN) -t $(DESTDIR)$(BINDIR) shpostgres
+
+.PHONY: install-shsqlite3
+install-sqlite3: shsqlite3
+	$(INSTALL_BIN) -t $(DESTDIR)$(BINDIR) shsqlite3
+
+.PHONY: clean
 clean:
 	rm -fr *.o shsql shsqlend shsqlline shsqlstart shsqlesc shpostgres shmysql shodbc shsqlinp shfreetds shsqlite3
 
 
-tools: shsql shsqlend shsqlline shsqlstart shsqlesc shsqlinp
+.PHONY: tools
+tools: $(tools)
 
 
 sarg.o: sarg.c $(HFILES)

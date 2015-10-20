@@ -1,41 +1,46 @@
 SHELLSQL - Installation Instructions
+####################################
 
-A - Prerequisites
+Prerequisites
+=============
 
-Tou need to have the development libraries of the SQL engines installed on the
+You need to have the development libraries of the SQL engines installed on the
 computer prior to installing shsql.  These can be obtained the engines' web
 sites, at time of writing these consist of.....
 
-postgres - http://www.postgresql.org  (Tested with version 7.3.4)
-mysql    - http://www.mysql.org       (Tested with verision 4.1.0)
-sqlite3  - http://www.sqlite.org      (Tested with version 3.0.8)
-                                      (NB - sqlite version 2 is not supported)
-odbc     - http://www.unixodbc.org    (Tested with version 2.2.10)
-                                      (NB - Tested with ODBC 3 only)
-freetds  - http://www.freetds.org     (Tested with 0.62.4)
-                                      (Read README.freetds before installing)
+PostgreSQL
+  http://www.postgresql.org
+MySQL
+  http://www.mysql.org
+SQLite3
+  http://www.sqlite.org
+ODBC
+  http://www.unixodbc.org
+FreeTDS
+  http://www.freetds.org (Read README.freetds before installing)
 
 
-B - Installation
+Installation
+============
 
-1 - Untar the distribution into a directory.
+To install the database-agnostic tools plus the PostgreSQL driver::
 
-2 - Log in as root
+  make tools shpostgres
+  sudo make install-tools install-shpostgres
 
-3 - Run the shellscript:
+To install the database-agnostic tools plus the MySQL driver::
 
-    ./install.sh
+  make tools shmysql
+  sudo make install-tools install-shmysql
 
-    and an interactive menu will appear.
+And so on for the other drivers.  The tools are necessary for any driver.
+Multiple drivers can be built and installed at once::
 
+  make tools shmysql shpostgres
+  sudo make install-tools install-shmysql install-shpostgres
 
-3a - Alternatively run install.sh with any combination of the following
-     parameters....
+Or you can build and/or install all of them at once::
 
-    ./install.sh postgres mysql sqlite3 odbc tools
+  make all
+  sudo make install
 
-    where "postgres", "mysql",  "sqlite3" and "ODBC" will install the
-    appropriate engine(s), and "tools" will just install the tools.  (The
-    tools are installed automatically if one or more of the engines are
-    specified).
-    
