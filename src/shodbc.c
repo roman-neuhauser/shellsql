@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 	int complete = -1;
 	int i;
 	long ans;
-	int logintimeout = 20;
+	long logintimeout = 20;
 	char *s;
 	char *password;
 	char *username;
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER *)logintimeout, 0);
+	SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)logintimeout, 0);
 
 	/* 3. Connect to the datasource  */
 
