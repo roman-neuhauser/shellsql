@@ -365,7 +365,7 @@ void dolines(SQLHSTMT *stmt, SQLSMALLINT ncol, char format)
 	char istr[256];
 	long sb = 0;
 
-	SQLINTEGER si;
+	SQLLEN si;
 
 	str = new_string();
 	tstr = new_string();
