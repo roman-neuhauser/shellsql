@@ -70,11 +70,12 @@ string *new_string_s(char const *s)
 	string *str;
 	int plen;
 
+	if((str = (string *)malloc(sizeof(string))) == NULL) return NULL;
+
 	str->len = strlen(s);
 	plen = (((str->len + 1)/ STRING_BLOCK) + 1) * STRING_BLOCK;
 
 	
-	if((str = (string *)malloc(sizeof(string))) == NULL) return NULL;
 	if((str->s = malloc(plen)) == NULL)
 	{
 		free(str);
