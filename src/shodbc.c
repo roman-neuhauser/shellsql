@@ -364,7 +364,7 @@ void dolines(SQLHSTMT *stmt, SQLSMALLINT ncol, char format)
 	string *str, *tstr;
 
 	char istr[256];
-	long sl = 0, sb = 0;
+	long sb = 0;
 
 	SQLINTEGER si;
 
@@ -394,12 +394,10 @@ void dolines(SQLHSTMT *stmt, SQLSMALLINT ncol, char format)
 				if(si == SQL_NO_TOTAL)
 				{
 					sb += 255;	
-					sl = 255;
 				}
 				else
 				{
 					sb += si;
-					sl = si;
 				}
 
 				string_cat(tstr, istr);

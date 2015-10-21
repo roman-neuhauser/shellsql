@@ -443,7 +443,6 @@ void mainloop()
 	char *sql;
 
 	int loop;
-	int type;
 
 	CS_INT restype;
 	CS_INT trows;
@@ -503,7 +502,6 @@ void mainloop()
 			 */
 			loop = -1;
 			pass = -1;
-			type = 0;
 			for(;;)
 			{
 				switch(ct_results(res, &restype)) {
@@ -524,22 +522,18 @@ void mainloop()
 				switch(restype) {
 				case CS_ROW_RESULT:
 				case CS_PARAM_RESULT:	/* SQL select query */
-					type = 1;
 					if(!dolines(res, format)) pass = 0;
 					break;
 				case CS_STATUS_RESULT:	/* DML insert/update/delete */
 				case CS_CMD_DONE:	
-					type = 2;
 					break;
 				case CS_CMD_SUCCEED:
-					type = 2;
 					if(ct_res_info(res, CS_ROW_COUNT, (CS_BYTE *)&trows, sizeof(CS_INT), NULL) != CS_SUCCEED)
 						pass = 0;
 					break;
 				case CS_CMD_FAIL:	/* Error - I will abort here */
 					pass = 0;
 					loop = 0;
-					type = 0;
 				}
 		
 				if(!loop) break;
@@ -689,7 +683,6 @@ int fetchnext(CS_COMMAND *res, dats *dat, CS_INT ncol)
 	CS_RETCODE ret;
 	CS_INT olen;
 	int i;
-	int cols;
 
 
 	switch(ct_fetch(res, CS_UNUSED, CS_UNUSED, CS_UNUSED, &rows_read)) {
