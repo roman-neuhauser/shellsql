@@ -327,7 +327,8 @@ void mainloop()
 			return;
 		}
 
-		ans = SQLPrepare(stmt, string_s(str) + 1, SQL_NTS);
+		/* WTF: +1??? */
+		ans = SQLPrepare(stmt, (SQLCHAR*)string_s(str) + 1, SQL_NTS);
 
 		if((ans != SQL_SUCCESS) && ( ans != SQL_SUCCESS_WITH_INFO))
 		{
