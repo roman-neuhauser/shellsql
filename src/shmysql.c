@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
 	for(i=1;i<argc;i++)
 	{
 		string_cat(str, argv[i]);
-		if((!strncasecmp(argv[i], "password", 9))
+		if((!strncasecmp(argv[i], "password", 8))
 		 || (!strncasecmp(argv[i], "user", 4))
 		 || (!strncasecmp(argv[i], "username", 8)))
 			wipe(argv[i]);
