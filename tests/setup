@@ -1,0 +1,74 @@
+# vim: ft=sh sw=2 et fdm=marker cms=\ #\ %s
+
+function cleanup # {{{
+{
+  trap "$*" EXIT HUP INT PIPE TERM
+} # }}}
+
+function setup # {{{
+{
+  case "$1" in
+  mysql|postgres|sqlite2|sqlite3)
+    setup_$1
+  ;;
+  *)
+    abort setup "$1"
+  ;;
+  esac
+} # }}}
+
+function setup_sqlite2 # {{{
+{
+  sqlite -init $TESTDIR/fixtures/sap-schema.sql sap .quit
+  sqlite -init $TESTDIR/fixtures/sap-data.sql sap .quit
+} # }}}
+
+function setup_sqlite3 # {{{
+{
+  sqlite3 -bail -batch -init $TESTDIR/fixtures/sap-schema.sql sap .quit
+  sqlite3 -bail -batch -init $TESTDIR/fixtures/sap-data.sql sap .quit
+} # }}}
+
+function setup_mysql # {{{
+{
+  . $TESTDIR/fixtures/start-mysql
+  cleanup teardown_mysql
+} # }}}
+
+function teardown_mysql # {{{
+{
+  local pf=mysql.pid
+  [ -f $pf ] || return 0
+  kill -TERM $(cat $pf)
+} # }}}
+
+function setup_postgres # {{{
+{
+  . $TESTDIR/fixtures/start-postgres
+  cleanup teardown_postgres
+} # }}}
+
+function teardown_postgres # {{{
+{
+  local pf=postgres.pid
+  [ -f $pf ] || return 0
+  kill -TERM $(cat $pf)
+} # }}}
+
+function load_schema # {{{
+{
+  case "$1" in
+  sqlite3)
+    sqlite3 -bail -batch -init $TESTDIR/fixtures/sap-schema.sql sap .quit
+  ;;
+  *)
+    abort load_schema "$1"
+  ;;
+  esac
+} # }}}
+
+function abort # {{{
+{
+  printf >&2 -- "ABORT: %s \"%s\"\n" "$1" "$2"
+  exit 2
+} # }}}

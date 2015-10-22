@@ -1,0 +1,23 @@
+#!/bin/sh
+
+[ "${TESTDIR:-none}" != 'none' ] || {
+  ${TESTDIR:?}
+  if [ "${0##*/}" = start-postgres ]; then
+    exit 1
+  else
+    return 1
+  fi
+}
+
+declare conffile="$PWD/mysql.conf"
+declare mysql_install_db=$(which mysql_install_db)
+declare mysql_basedir="${mysql_install_db%/*/*}"
+
+sed "s:\$PWD:$PWD:g" <"$TESTDIR/fixtures/mysql.conf" >"$conffile"
+
+mysql_install_db --defaults-file="$conffile" --basedir="$mysql_basedir" >mysql_install_db.log 2>&1
+mysqld_safe --defaults-file="$conffile" >mysqld_safe.outerr 2>&1 &
+
+mysqladmin --defaults-file="$conffile" create sap
+mysql --defaults-file="$conffile" sap < "$TESTDIR/fixtures/sap-schema.sql"
+mysql --defaults-file="$conffile" sap < "$TESTDIR/fixtures/sap-data.sql"
