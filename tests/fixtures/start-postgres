@@ -1,0 +1,29 @@
+#!/bin/sh
+
+[ "${TESTDIR:-none}" != 'none' ] || {
+  ${TESTDIR:?}
+  if [ "${0##*/}" = start-postgres ]; then
+    exit 1
+  else
+    return 1
+  fi
+}
+
+declare datadir="$PWD/pgdata"
+declare socketsdir="$datadir/sockets"
+declare conffile="$PWD/pgdata/postgresql.conf"
+
+export PGHOST="$socketsdir"
+
+pg_ctl initdb --silent --pgdata "$datadir" -o '--auth=trust --locale=C --nosync --noclean'
+
+mkdir "$socketsdir"
+
+sed "s:\$PWD:$PWD:g" <"$TESTDIR/fixtures/postgresql.conf" >"$conffile"
+
+pg_ctl start -w --pgdata "$datadir" --mode immediate >pg_ctl.log 2>&1
+
+createuser --createdb --superuser root
+createdb -U root sap
+psql -q -U root -d sap -f $TESTDIR/fixtures/sap-schema.sql
+psql -q -U root -d sap -f $TESTDIR/fixtures/sap-data.sql

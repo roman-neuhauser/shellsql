@@ -1,3 +1,10 @@
+CRAMCMD = cram
+
+.PHONY: check
+check: all
+	env -i CRAM="$(CRAM)" PATH="$$PWD/tests:$$PWD/src:$(PATH)" $(CRAMCMD) -v tests
+
+
 targets = all clean install \
           shfreetds install-shfreetds \
           shmysql install-shmysql \
