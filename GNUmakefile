@@ -1,3 +1,18 @@
+RST2HTMLCMD = rst2html5
+html = INSTALL.html README.html
+
+.PHONY: html
+html: $(html)
+
+$(html): %.html: %.rst
+	$(RST2HTMLCMD) $(RST2HTML) $< $@
+
+
+.PHONY: clean
+clean::
+	$(RM) $(html)
+
+
 CRAMCMD = cram
 
 .PHONY: check
@@ -16,5 +31,5 @@ targets = all clean install \
 
 .PHONY: $(targets)
 
-$(targets):
+$(targets)::
 	$(MAKE) -C src $@
