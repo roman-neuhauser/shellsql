@@ -4,7 +4,7 @@ CC=gcc
 
 CFLAGS = -g -Wall
 
-INSTALL_BIN = install -m 0755
+install-files = install -m 0755 -Dt $(DESTDIR)$(1)/. $(2)
 
 inc_shmysql = $(shell mysql_config --include)
 lib_shmysql = $(shell mysql_config --libs)
@@ -26,15 +26,15 @@ all: $(drivers) $(tools)
 
 .PHONY: install
 install: all
-	$(INSTALL_BIN) -t $(DESTDIR)$(BINDIR) $(programs)
+	$(call install-files,$(BINDIR),$(programs))
 
 .PHONY: install-tools
 install-tools: $(tools)
-	$(INSTALL_BIN) -t $(DESTDIR)$(BINDIR) $(tools)
+	$(call install-files,$(BINDIR),$(tools))
 
 .PHONY: $(install_drivers)
 $(install_drivers): install-%: %
-	$(INSTALL_BIN) -t $(DESTDIR)$(BINDIR) $^
+	$(call install-files,$(BINDIR),$^)
 
 .PHONY: clean
 clean:
