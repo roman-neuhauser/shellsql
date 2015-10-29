@@ -1,4 +1,4 @@
-srcdir = .
+srcdir = @srcdir@
 
 BINDIR = /usr/bin
 CC = gcc

@@ -8,6 +8,8 @@ You need to have the development libraries of the SQL engines installed on the
 computer prior to installing shsql.  These can be obtained the engines' web
 sites, at time of writing these consist of.....
 
+Motoconf
+  https://github.com/roman-neuhauser/motoconf
 PostgreSQL
   http://www.postgresql.org
 MySQL
@@ -22,6 +24,16 @@ FreeTDS
 
 Installation
 ============
+
+To prepare the sources for building within the source tree::
+
+  motoconf moto.conf
+
+To prepare the sources for building outside the source tree::
+
+  mkdir build
+  cd build
+  motoconf ../moto.conf
 
 To install the database-agnostic tools plus the PostgreSQL driver::
 
