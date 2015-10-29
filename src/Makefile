@@ -51,10 +51,11 @@ $(drivers): %: %.o message.o string.o dolitem.o
 $(tools): %: %.o message.o strarr.o string.o traperr.o
 	$(CC) -o$@ $^
 
+srcdir = .
 
-$(objects): message.h string.h shellsql.h strarr.h sarg.h
+$(objects): $(addprefix $(srcdir)/,message.h string.h shellsql.h strarr.h sarg.h)
 
-$(objects): %.o: %.c
+$(objects): %.o: $(srcdir)/%.c
 	$(CC) $(CFLAGS) $(inc_$(basename $@)) -c $<
 
 
