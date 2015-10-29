@@ -1,10 +1,12 @@
+srcdir = .
+
 RST2HTMLCMD = rst2html5
 html = INSTALL.html README.html
 
 .PHONY: html
 html: $(html)
 
-$(html): %.html: %.rst
+$(html): %.html: $(srcdir)/%.rst
 	$(RST2HTMLCMD) $(RST2HTML) $< $@
 
 
@@ -17,7 +19,7 @@ CRAMCMD = cram
 
 .PHONY: check
 check: all
-	env -i CRAM="$(CRAM)" PATH="$$PWD/tests:$$PWD/src:$(PATH)" $(CRAMCMD) -v tests
+	env -i CRAM="$(CRAM)" PATH="$$PWD/$(srcdir)/tests:$$PWD/$(srcdir)/src:$(PATH)" $(CRAMCMD) -v $(srcdir)/tests
 
 
 targets = all clean install \
@@ -32,4 +34,4 @@ targets = all clean install \
 .PHONY: $(targets)
 
 $(targets)::
-	$(MAKE) -C src $@
+	$(MAKE) -C $(srcdir)/src $@
