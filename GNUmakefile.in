@@ -22,8 +22,8 @@ check: all
 
 install-files = install -m 0755 -Dt $(DESTDIR)$(1)/. $(2)
 
-inc_shmysql = $(shell mysql_config --include)
-lib_shmysql = $(shell mysql_config --libs)
+inc_shmysql = @mysql_inc@
+lib_shmysql = @mysql_lib@
 
 
 programs = $(drivers) $(tools)
