@@ -25,6 +25,9 @@ install-files = install -m 0755 -Dt $(DESTDIR)$(1)/. $(2)
 inc_shmysql = @mysql_inc@
 lib_shmysql = @mysql_lib@
 
+inc_shpostgres = @pq_inc@
+lib_shpostgres = @pq_lib@
+
 
 programs = $(drivers) $(tools)
 
