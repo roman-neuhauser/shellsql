@@ -398,9 +398,9 @@ int shsql_getline(strarr *arr, char format, char fchr)
 					c = 0;
 				else if(c == '"' || c == '\'')
 				{
+					delim = c;
 					c = 0;
 					lmode = 1;
-					delim = c;
 				}
 				else if(c == '\n')
 				{
