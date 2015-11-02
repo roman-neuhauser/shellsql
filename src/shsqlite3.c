@@ -244,6 +244,7 @@ int callback(void *ptr, int ncol, char **col, char **name)
 	string_cat_c(str, '\n');
 
 	message_send(mes, str, 0, MES_SERVER_TO_CLIENT);
+	string_clear(str);
 	return 0;
 }
 
