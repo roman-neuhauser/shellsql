@@ -113,7 +113,7 @@ void strarr_minus(strarr *sa)
 {
 	if(sa->blen)
 	{
-		if(sa->buf[sa->blen - 1]);
+		if(sa->buf[sa->blen - 1])
 		{
 			sa->blen--;
 			sa->buf[sa->blen] = 0;
