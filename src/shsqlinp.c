@@ -553,7 +553,7 @@ int shsql_getline(strarr *arr, char format, char fchr)
 				if(c == '\n')
 				{
 					strarr_end(arr);
-					c = 0;
+					return strarr_num(arr);
 				}
 				else
 				{
@@ -580,7 +580,10 @@ int shsql_getline(strarr *arr, char format, char fchr)
 					lmode = 10;
 				}
 				else if(c == '\n')
-					c = 0;
+				{
+					strarr_end(arr);
+					return strarr_num(arr);
+				}
 				else
 				{
 					lmode = 1;
@@ -595,11 +598,16 @@ int shsql_getline(strarr *arr, char format, char fchr)
 					c = 0;
 					numl = 0;
 				}
-				else if(c == fchr || c == '\n')
+				else if(c == fchr)
 				{
 					strarr_end(arr);
 					c = 0;
 					lmode = 10;
+				}
+				else if(c == '\n')
+				{
+					strarr_end(arr);
+					return strarr_num(arr);
 				}
 			}
 			else if(lmode == 2)	/* In escape mode */
