@@ -53,7 +53,7 @@
  *     The direction field is either MES_SERVER_TO_CLIENT or
  *     MES_CLIENT_TO_SERVER.
  *
- *     Returns *    -1 on error or length of transmitted message
+ *     Returns -1 on error or length of transmitted message
  *
  * int message_receive(message *, string *str, int *complete, int direction)
  *    Receives string through message object
@@ -64,7 +64,8 @@
  *
  *    Please note though that if the complete flag is not set the "parts" of
  *    the message may not match what has been "sent".  The field is set by
- *    message_receive *    accordingly if the message is complete or not.
+ *    message_receive
+ *    accordingly if the message is complete or not.
  *
  *    The direction field is MES_SERVER_TO_CLIENT or MES_CLIENT_TO_SERVER
  *  
@@ -236,10 +237,14 @@ int message_receive(message *mes, string *str, int *complete, int direction)
 		if(!sz) continue;
 
 		/*
-		 * The first character is 1 for new string, 2 for middlw of string 4 for end of mes 8 for end of trans (ored)
-	 	 *		16 is continue and should not be here
+		 * The first character is:
+		 *  1 for new string,
+		 *  2 for middlw of string,
+		 *  4 for end of mes
+		 *  8 for end of trans (ored)
+		 * 16 is continue and should not be here
 		 * I suppose I should do some validation, but I won't
- 		 */
+		 */
 
 		c = *(mes->mbuf.mtext);
 
