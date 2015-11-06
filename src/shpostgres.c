@@ -45,7 +45,7 @@
 
 typedef void (*sighandler_t)(int);
 void mainloop();
-void sighand();
+void sighand(int);
 void dolines(PGresult *pgr, char format);
 void wipe(char *s);
 
@@ -301,7 +301,7 @@ void dolines(PGresult *pgr, char format)
 	return;
 }
 
-void sighand()
+void sighand(int signo)
 {
 	isloop = 0;
 }

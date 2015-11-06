@@ -53,9 +53,8 @@
 #include "message.h"
 #include "shellsql.h"
 
-typedef void (*sighandler_t)(int);
 void mainloop();
-void sighand();
+void sighand(int);
 void dolines(SQLHSTMT *stmt, SQLSMALLINT ncol, char format);
 void wipe(char *s);
 
@@ -416,7 +415,7 @@ void dolines(SQLHSTMT *stmt, SQLSMALLINT ncol, char format)
 	return;
 }
 
-void sighand()
+void sighand(int signo)
 {
 	isloop = 0;
 }

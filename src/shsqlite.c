@@ -44,7 +44,7 @@
 
 typedef void (*sighandler_t)(int);
 void mainloop();
-void sighand();
+void sighand(int);
 int callback(void *ptr, int ncol, char **col, char **name);
 
 /*
@@ -248,7 +248,7 @@ int callback(void *ptr, int ncol, char **col, char **name)
 }
 
 
-void sighand()
+void sighand(int signo)
 {
 	isloop = 0;
 }

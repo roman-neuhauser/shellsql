@@ -59,7 +59,7 @@
 
 typedef void (*sighandler_t)(int);
 void mainloop();
-void sighand();
+void sighand(int);
 void dolines(MYSQL_RES *res, char format);
 void wipe(char *s);
 void parse_strings(char **sqlarg, char *ins);
@@ -361,7 +361,7 @@ void dolines(MYSQL_RES *res, char format)
 }
 
 			
-void sighand()
+void sighand(int signo)
 {
 	isloop = 0;
 }

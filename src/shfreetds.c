@@ -78,7 +78,7 @@ char *getdata(long *len, int *isnull, CS_COMMAND *res, int colnum);
 
 typedef void (*sighandler_t)(int);
 void mainloop();
-void sighand();
+void sighand(int);
 int dolines(CS_COMMAND *res, char format);
 void wipe(char *s);
 void parse_strings(char **sqlarg, char *ins);
@@ -825,7 +825,7 @@ char *getstrfield(dats *dat, int *tbf)
 }
 
 			
-void sighand()
+void sighand(int signo)
 {
 	isloop = 0;
 }
