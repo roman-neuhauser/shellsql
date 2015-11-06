@@ -191,7 +191,7 @@ int message_end(message *mes, int direction)
 	return 0;
 }
 
-int message_status(message *mes, int status, char *s, int direction)
+int message_status(message *mes, int status, char const *s, int direction)
 {
 	long l;
 

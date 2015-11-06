@@ -45,7 +45,7 @@
 #include "traperr.h"
 
 
-int getargpos(strarr *arr, char *s);
+int getargpos(strarr *arr, char const *s);
 int shsql_getline(strarr *arr, char format, char fchr);
 int out_put_c(strarr *arr, char c);
 
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
  * Second string, # or @ depending on number or string
  * Third bit next bit of SQL (or end) and so on
  */
-int getargpos(strarr *arr, char *s)
+int getargpos(strarr *arr, char const *s)
 {
 	int mode = 0;
 	char delim;

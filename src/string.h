@@ -50,15 +50,15 @@ typedef struct string_t string;
 
 
 string *new_string();
-string *new_string_s(char *s);
+string *new_string_s(char const *s);
 
-string *string_cat(string *str, char *s);
+string *string_cat(string *str, char const *s);
 string *string_cat_c(string *str, char c);
-string *string_set(string *str, char *s);
+string *string_set(string *str, char const *s);
 string *string_clear(string *str);
 string *string_empty(string *str);
 
-char *string_s(string *str);
+char const *string_s(string *str);
 long string_len(string *str);
 
 void string_delete(string *str);

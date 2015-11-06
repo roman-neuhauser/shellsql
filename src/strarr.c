@@ -45,7 +45,7 @@ strarr *new_strarr()
  * The methods return -1 on error
  */
 
-int strarr_put(strarr *sa, char *s)
+int strarr_put(strarr *sa, char const *s)
 {
 	long len;
 	
@@ -124,7 +124,7 @@ void strarr_minus(strarr *sa)
 
 char emptystring = 0;
 
-char *strarr_out(strarr *sa, int itm)	/* Return the string item */
+char const *strarr_out(strarr *sa, int itm)	/* Return the string item */
 {
 	if(itm < 0 || itm >= sa->num)
 		return &emptystring;

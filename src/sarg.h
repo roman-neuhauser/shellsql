@@ -10,7 +10,7 @@ struct sqlarg_t {
 
 typedef struct sqlarg_t sqlarg;
 
-sqlarg *new_sqlarg(char **sqlnames, char *inputstr, int numb);
+sqlarg *new_sqlarg(char const **sqlnames, char const *inputstr, int numb);
 void sqlarg_delete(sqlarg *s);
 char *sqlarg_get(sqlarg *s, int index);
 

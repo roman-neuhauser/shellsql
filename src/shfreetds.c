@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 	CS_INT restype;
 
 	
-	char *sqlname[] = {
+	char const *sqlname[] = {
 		"server",
 		"user",
 		"password",
@@ -440,7 +440,7 @@ void mainloop()
 	int complete = -1;
 	int pass;
 	char format;
-	char *sql;
+	char const *sql;
 
 	int loop;
 

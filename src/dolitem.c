@@ -32,11 +32,11 @@
 #include "string.h"
 #include "shellsql.h"
 
-void outstring(string *str, char *s, char format);
+void outstring(string *str, char const *s, char format);
 char outesc(string *str, char c, char format);
 
 
-void dolitem(string *str, char *s, int last, char format)
+void dolitem(string *str, char const *s, int last, char format)
 {
 	switch(format) {
 	case SHSQL_SHELL:
@@ -67,7 +67,7 @@ void dolitem(string *str, char *s, int last, char format)
 }
 
 
-void outstring(string *str, char *s, char format)
+void outstring(string *str, char const *s, char format)
 {
 	
 	char c;

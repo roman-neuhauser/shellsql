@@ -12,7 +12,7 @@
 #include <string.h>
 #include <ctype.h>
 
-sqlarg *new_sqlarg(char **sqlname, char *ins, int num)
+sqlarg *new_sqlarg(char const **sqlname, char const *ins, int num)
 {
 	/*
 	 * while scanning

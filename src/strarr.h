@@ -21,12 +21,12 @@ struct strarr_t {
 typedef struct strarr_t strarr;
 
 strarr *new_strarr();
-int strarr_put(strarr *sa, char *s);
+int strarr_put(strarr *sa, char const *s);
 int strarr_put_c(strarr *sa, char c);
 int strarr_end(strarr *sa);
 char strarr_last(strarr *arr);
 void strarr_minus(strarr *sa);
-char *strarr_out(strarr *sa, int itm);
+char const *strarr_out(strarr *sa, int itm);
 int strarr_num(strarr *sa);
 void strarr_delete(strarr *sa);
 void strarr_clear(strarr *sa);

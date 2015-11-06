@@ -84,7 +84,7 @@ typedef struct message_t message;
 message *new_message(int messid);
 int message_send(message *mes, string *str, int complete, int direction);
 int message_end(message *mes, int direction);
-int message_status(message *mes, int status, char *s, int direction);
+int message_status(message *mes, int status, char const *s, int direction);
 int message_receive(message *mes, string *str, int *complete, int direction);
 void message_destroy(message *mes);
 void message_delete(message *mes);

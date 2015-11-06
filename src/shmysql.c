@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 	int i;
 
 	
-	char *sqlname[] = {
+	char const *sqlname[] = {
 		"_dummy",
 		"host",
 		"user",

@@ -30,13 +30,13 @@
  * A dinky string object
  *
  * string *new_string()	- Creates the object with zero length string
- * string *new_string(char *) - Creates the object with contents of *s
- * string_set(string *str, char *s)	- Sets the string to contents of *s
- * string_cat(string *str, char *s)	- Appends string with *s
+ * string *new_string(char const *) - Creates the object with contents of *s
+ * string_set(string *str, char const *s)	- Sets the string to contents of *s
+ * string_cat(string *str, char const *s)	- Appends string with *s
  * string_cat_c(string *str, char c)	- Appends string with character c
  * string_clear(string *str)		- Clears the string (to empty string)
  * string_empty(string *str)		- Empties the string (to empty string)
- * char *string_s(string *str)		- Returns the string as char *
+ * char const *string_s(string *str)		- Returns the string as char const *
  * int  string_len(string *str)		- Returns the length
  * string_delete(string *str)		- Deletes it (frees resources)
  *
@@ -64,7 +64,7 @@ string *new_string()
 	return str;
 }
 
-string *new_string_s(char *s)
+string *new_string_s(char const *s)
 {
 
 	string *str;
@@ -108,7 +108,7 @@ void string_term(string *str)
 }
 
 
-string *string_cat(string *str, char *s)
+string *string_cat(string *str, char const *s)
 {
 	int plen;
 	str->len += strlen(s);
@@ -153,7 +153,7 @@ string *string_cat_c(string *str, char c)
 	return str;
 }
 
-string *string_set(string *str, char *s)
+string *string_set(string *str, char const *s)
 {
 	int plen;
 	str->len = strlen(s);
@@ -199,7 +199,7 @@ string *string_empty(string *str)
 	return str;
 }
 
-char *string_s(string *str)
+char const *string_s(string *str)
 {
 	return str->s;
 }

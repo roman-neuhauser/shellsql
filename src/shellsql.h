@@ -49,6 +49,6 @@
 #define SHSQL_ODBC 4
 #define SHSQL_FREETDS 5
 
-void dolitem (string *str, char *s, int last, char format);
+void dolitem (string *str, char const *s, int last, char format);
 
 #endif
