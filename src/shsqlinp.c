@@ -485,24 +485,33 @@ int shsql_getline(strarr *arr, char format, char fchr)
 					lmode = 10;
 					c = 0;
 				}
-				else if(c != '"')
+				else if(c == '"')
 				{
-					lmode = 1;
+					lmode = 2;
 				}
 				else if(c == '\n')
-					c = 0;
+				{
+					strarr_end(arr);
+					return strarr_num(arr);
+				}
 				else
-					lmode = 2;
+					lmode = 1;
 	
 			}
 			else if(lmode == 1)	/* In field, no quotes */
 			{
-				if(c == ',' || c == '\n')
+				if(c == ',')
 				{
 					while(strarr_last(arr) <= ' ') strarr_minus(arr);
 					strarr_end(arr);
 					lmode = 10;
 					c = 0;
+				}
+				else if(c == '\n')
+				{
+					while(strarr_last(arr) <= ' ') strarr_minus(arr);
+					strarr_end(arr);
+					return strarr_num(arr);
 				}
 			}
 			else if(lmode == 2)	/* In field - Quote */
