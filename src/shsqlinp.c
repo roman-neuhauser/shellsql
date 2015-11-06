@@ -487,7 +487,6 @@ int shsql_getline(strarr *arr, char format, char fchr)
 				}
 				else if(c != '"')
 				{
-					out_put_c(arr, c);
 					lmode = 1;
 				}
 				else if(c == '\n')
