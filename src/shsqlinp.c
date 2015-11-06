@@ -497,12 +497,18 @@ int shsql_getline(strarr *arr, char format, char fchr)
 			}
 			else if(lmode == 1)	/* In field, no quotes */
 			{
-				if(c == ',' || c == '\n')
+				if(c == ',')
 				{
 					while(strarr_last(arr) <= ' ') strarr_minus(arr);
 					strarr_end(arr);
 					lmode = 10;
 					c = 0;
+				}
+				else if(c == '\n')
+				{
+					while(strarr_last(arr) <= ' ') strarr_minus(arr);
+					strarr_end(arr);
+					return strarr_num(arr);
 				}
 			}
 			else if(lmode == 2)	/* In field - Quote */
