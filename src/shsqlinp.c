@@ -368,14 +368,231 @@ int out_put_c(strarr *arr, char c)
 	}
 	return strarr_put_c(arr, c);
 }
-		
-	
+
+int read_tuple_simple(strarr *arr, char fchr);
+int read_tuple_csv(strarr *arr, char fchr);
+int read_tuple_shell(strarr *arr, char fchr);
 
 int shsql_getline(strarr *arr, char format, char fchr)
+{
+	switch(format) {
+
+	case SHSQL_SHELL:
+		return read_tuple_shell(arr, fchr);
+	case SHSQL_CSV:
+		return read_tuple_csv(arr, fchr);
+	case SHSQL_PIPE:
+	case SHSQL_COLON:
+	case SHSQL_TAB:
+		return read_tuple_simple(arr, fchr);
+	}
+	return 0;
+}
+
+int read_tuple_shell(strarr *arr, char fchr)
 {
 	int ic;
 	char c;
 	char delim;
+
+	int lmode = 0;
+
+	strarr_clear(arr);
+
+	for(;;)
+	{
+		ic = getchar();
+		if(ic == EOF) return -1;
+		c = (char) ic;
+
+		if(lmode == 0)	/* Beginning of line of field */
+		{
+			if(c <= ' ')
+				c = 0;
+			else if(c == '"' || c == '\'')
+			{
+				delim = c;
+				c = 0;
+				lmode = 1;
+			}
+			else if(c == '\n')
+			{
+				return strarr_num(arr);
+			}
+			else
+			{
+				lmode = 2;
+			}
+		}
+		else if(lmode == 1)	/* In quotes */
+		{
+			if(c == delim)
+			{
+				c = 0;
+				lmode = 3;
+			}
+		}
+		else if(lmode == 2)	/* No quotes TODO? Honour backslash? */
+		{
+			if(c == '\n')
+			{
+				strarr_end(arr);
+				return strarr_num(arr);
+			}
+			else if(c <= ' ')
+			{
+				strarr_end(arr);
+				lmode = 0;
+				c = 0;
+			}
+			else if(c == '"' || c == '\'')
+			{
+				delim = c;
+				c = 0;
+				lmode = 1;
+			}
+		}
+		else if(lmode == 3)	/* Possible end of quoted field? */
+		{
+			if(c == delim)
+				lmode = 1;	/* Leave c to append delim char */
+			else if(c == '\n')
+			{
+				strarr_end(arr);
+				c = 0;
+				return strarr_num(arr);
+			}
+			else if(c <=  ' ')
+			{
+				strarr_end(arr);
+				c = 0;
+				lmode = 0;
+			}
+			else
+				lmode = 2;
+		}
+
+		if(c) out_put_c(arr, c);
+	}
+	return 0;
+}
+
+int read_tuple_csv(strarr *arr, char fchr)
+{
+	int ic;
+	char c;
+
+	int lmode = 0;
+
+	strarr_clear(arr);
+
+	for(;;)
+	{
+		ic = getchar();
+		if(ic == EOF) return -1;
+		c = (char) ic;
+
+		if(lmode == 10)	/* End of (last)field */
+		{
+			if(c > ' ')
+				lmode = 0;
+			else if(c == '\n')
+			{
+				strarr_end(arr);
+				return strarr_num(arr);
+			}
+			else
+				c = 0;
+
+		}
+
+		if(lmode == 0)	/* Start of line/field */
+		{
+			if(c <= ' ')	/* No preceding spaces */
+				c = 0;
+			else if(c == ',')
+			{
+				strarr_end(arr);
+				lmode = 10;
+				c = 0;
+			}
+			else if(c == '"')
+			{
+				lmode = 2;
+			}
+			else if(c == '\n')
+			{
+				strarr_end(arr);
+				return strarr_num(arr);
+			}
+			else
+				lmode = 1;
+
+		}
+		else if(lmode == 1)	/* In field, no quotes */
+		{
+			if(c == ',')
+			{
+				while(strarr_last(arr) <= ' ') strarr_minus(arr);
+				strarr_end(arr);
+				lmode = 10;
+				c = 0;
+			}
+			else if(c == '\n')
+			{
+				while(strarr_last(arr) <= ' ') strarr_minus(arr);
+				strarr_end(arr);
+				return strarr_num(arr);
+			}
+		}
+		else if(lmode == 2)	/* In field - Quote */
+		{
+			if(c == '"')
+			{
+				lmode = 3;
+				c = 0;
+			}
+		}
+		else if(lmode == 3)	/* In field - quote - come accross a quote */
+		{
+			if(c == '"')
+			{
+				/* Quote put in by not making c = 0 */
+				lmode = 2;
+			}
+			else if(c == ',' || c == '\n')
+			{
+				strarr_end(arr);
+				lmode = 10;
+				c = 0;
+			}
+			else
+			{
+				lmode = 4;
+				c = 0;
+			}
+		}
+		else if(lmode == 4)	/* Between/at end of quotes for quoted fields */
+		{
+			if(c == '"')
+				lmode = 2;
+			else if(c == ',' || c == '\n')
+			{
+				strarr_end(arr);
+				lmode = 10;
+			}
+			c = 0;
+		}
+
+		if(c) out_put_c(arr, c);
+	}
+	return 0;
+}
+
+int read_tuple_simple(strarr *arr, char fchr)
+{
+	int ic;
+	char c;
 	char d;
 	int numl = 0;
 
@@ -389,276 +606,107 @@ int shsql_getline(strarr *arr, char format, char fchr)
 		if(ic == EOF) return -1;
 		c = (char) ic;
 
-		switch(format) {
-
-		case SHSQL_SHELL:	/* Space(s) separated with quote or double quote */
-			if(lmode == 0)	/* Beginning of line of field */
+		if(lmode == 10)	/* End of field */
+		{
+			if(c == '\n')
 			{
-				if(c <= ' ')
-					c = 0;
-				else if(c == '"' || c == '\'')
-				{
-					delim = c;
-					c = 0;
-					lmode = 1;
-				}
-				else if(c == '\n')
-				{
-					return strarr_num(arr);
-				}
-				else
-				{
-					lmode = 2;
-				}
+				strarr_end(arr);
+				return strarr_num(arr);
 			}
-			else if(lmode == 1)	/* In quotes */
+			else
 			{
-				if(c == delim)
-				{
-					c = 0;
-					lmode = 3;
-				}
-			}
-			else if(lmode == 2)	/* No quotes TODO? Honour backslash? */ 
-			{
-				if(c == '\n')
-				{
-					strarr_end(arr);
-					return strarr_num(arr);
-				}
-				else if(c <= ' ')
-				{
-					strarr_end(arr);
-					lmode = 0;
-					c = 0;
-				}
-				else if(c == '"' || c == '\'')
-				{
-					delim = c;
-					c = 0;
-					lmode = 1;
-				}
-			}
-			else if(lmode == 3)	/* Possible end of quoted field? */
-			{
-				if(c == delim)
-					lmode = 1;	/* Leave c to append delim char */
-				else if(c == '\n')
-				{
-					strarr_end(arr);
-					c = 0;
-					return strarr_num(arr);
-				}
-				else if(c <=  ' ')
-				{
-					strarr_end(arr);
-					c = 0;
-					lmode = 0;
-				}
-				else
-					lmode = 2;
-			}
-			break;
-				
-		case SHSQL_CSV:
-			if(lmode == 10)	/* End of (last)field */
-			{
-				if(c > ' ')
-					lmode = 0;
-				else if(c == '\n')
-				{
-					strarr_end(arr);
-					return strarr_num(arr);
-				}
-				else
-					c = 0;
-				
-			}
-				
-			if(lmode == 0)	/* Start of line/field */
-			{
-				if(c <= ' ')	/* No preceding spaces */
-					c = 0;
-				else if(c == ',')
-				{
-					strarr_end(arr);
-					lmode = 10;
-					c = 0;
-				}
-				else if(c == '"')
-				{
-					lmode = 2;
-				}
-				else if(c == '\n')
-				{
-					strarr_end(arr);
-					return strarr_num(arr);
-				}
-				else
-					lmode = 1;
-	
-			}
-			else if(lmode == 1)	/* In field, no quotes */
-			{
-				if(c == ',')
-				{
-					while(strarr_last(arr) <= ' ') strarr_minus(arr);
-					strarr_end(arr);
-					lmode = 10;
-					c = 0;
-				}
-				else if(c == '\n')
-				{
-					while(strarr_last(arr) <= ' ') strarr_minus(arr);
-					strarr_end(arr);
-					return strarr_num(arr);
-				}
-			}
-			else if(lmode == 2)	/* In field - Quote */
-			{
-				if(c == '"') 
-				{
-					lmode = 3;
-					c = 0;
-				}
-			}
-			else if(lmode == 3)	/* In field - quote - come accross a quote */
-			{
-				if(c == '"')
-				{
-					/* Quote put in by not making c = 0 */
-					lmode = 2;
-				}
-				else if(c == ',' || c == '\n')
-				{
-					strarr_end(arr);
-					lmode = 10;
-					c = 0;
-				}
-				else
-				{
-					lmode = 4;
-					c = 0;
-				}
-			}
-			else if(lmode == 4)	/* Between/at end of quotes for quoted fields */
-			{
-				if(c == '"')
-					lmode = 2;
-				else if(c == ',' || c == '\n')
-				{
-					strarr_end(arr);
-					lmode = 10;
-				}
-				c = 0;
-			}
-			break;
-		case SHSQL_PIPE:
-		case SHSQL_COLON:
-		case SHSQL_TAB:	
-			if(lmode == 10)	/* End of field */
-			{
-				if(c == '\n')
-				{
-					strarr_end(arr);
-					return strarr_num(arr);
-				}
-				else
-				{
-					lmode = 0;
-				}
-			}
-			if(lmode == 3)
-			{
-				if(c < '0' || c > '7' || numl >= 3)
-				{
-					out_put_c(arr, d);
-					lmode = 1;
-					d = 0;
-					numl = 0;
-				}
-			}
-
-			if(lmode == 0)	/* Start of field */
-			{
-				if(c == fchr)
-				{
-					strarr_end(arr);
-					c = 0;
-					lmode = 10;
-				}
-				else if(c == '\n')
-				{
-					strarr_end(arr);
-					return strarr_num(arr);
-				}
-				else
-				{
-					lmode = 1;
-				}
-			}
-			else if(lmode == 1)	/* In field */
-			{
-				if (c == '\\')
-				{
-					lmode = 2;
-					d = 0;
-					c = 0;
-					numl = 0;
-				}
-				else if(c == fchr)
-				{
-					strarr_end(arr);
-					c = 0;
-					lmode = 10;
-				}
-				else if(c == '\n')
-				{
-					strarr_end(arr);
-					return strarr_num(arr);
-				}
-			}
-			else if(lmode == 2)	/* In escape mode */
-			{
-				switch(c) {
-				case 'n':	d = '\n';	break;
-				case 'r':	d = '\r';	break;
-				case 't':	d = '\t';	break;
-				case 'N':	d = 0;		break;	/* This is NULL */
-
-				case '0':
-				case '1':
-				case '2':
-				case '3':
-				case '4':
-				case '5':
-				case '6':
-				case '7':
-					numl++;
-					lmode = 3;
-					d = (d << 3 ) & 0xff;
-					d |= (c & 0x03);
-					break;
-					
-				default:	d = c;		break;
-				}
-				c = d;
-				lmode = 1;
-			}
-			else if(lmode == 3)	/* In escape mode - Numeric */
-			{
-				if(c >= '0' && c <= '7')
-				{
-					numl++;
-					lmode = 3;
-					d = (d << 3 ) & 0xff;
-					d |= (c & 0x03);
-				}
+				lmode = 0;
 			}
 		}
-	
+		if(lmode == 3)
+		{
+			if(c < '0' || c > '7' || numl >= 3)
+			{
+				out_put_c(arr, d);
+				lmode = 1;
+				d = 0;
+				numl = 0;
+			}
+		}
+
+		if(lmode == 0)	/* Start of field */
+		{
+			if(c == fchr)
+			{
+				strarr_end(arr);
+				c = 0;
+				lmode = 10;
+			}
+			else if(c == '\n')
+			{
+				strarr_end(arr);
+				return strarr_num(arr);
+			}
+			else
+			{
+				lmode = 1;
+			}
+		}
+		else if(lmode == 1)	/* In field */
+		{
+			if (c == '\\')
+			{
+				lmode = 2;
+				d = 0;
+				c = 0;
+				numl = 0;
+			}
+			else if(c == fchr)
+			{
+				strarr_end(arr);
+				c = 0;
+				lmode = 10;
+			}
+			else if(c == '\n')
+			{
+				strarr_end(arr);
+				return strarr_num(arr);
+			}
+		}
+		else if(lmode == 2)	/* In escape mode */
+		{
+			switch(c) {
+			case 'n':	d = '\n';	break;
+			case 'r':	d = '\r';	break;
+			case 't':	d = '\t';	break;
+			case 'N':	d = 0;		break;	/* This is NULL */
+
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+				numl++;
+				lmode = 3;
+				d = (d << 3 ) & 0xff;
+				d |= (c & 0x03);
+				break;
+
+			default:	d = c;		break;
+			}
+			c = d;
+			lmode = 1;
+		}
+		else if(lmode == 3)	/* In escape mode - Numeric */
+		{
+			if(c >= '0' && c <= '7')
+			{
+				numl++;
+				lmode = 3;
+				d = (d << 3 ) & 0xff;
+				d |= (c & 0x03);
+			}
+		}
+
 		if(c) out_put_c(arr, c);
 	}
 	return 0;
 }
-		
