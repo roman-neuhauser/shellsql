@@ -45,8 +45,13 @@
 #include "traperr.h"
 
 
+typedef int (shsqlinp_parser)(strarr *arr, char fsep);
+
+int read_tuple_delim(strarr *arr, char fsep);
+int read_tuple_csv(strarr *arr, char);
+int read_tuple_shell(strarr *arr, char);
+
 int getargpos(strarr *arr, char const *s);
-int shsql_getline(strarr *arr, char format, char fchr);
 int out_put_c(strarr *arr, char c);
 
 
@@ -61,7 +66,7 @@ int main(int argc, char *argv[])
 	char *ts;
 	message *mes;
 	long key;
-	char format = SHSQL_SHELL;
+	shsqlinp_parser *parse = read_tuple_shell;
 	char fchr = 0;
 	strarr *arr, *arrin;
 	char *t;
@@ -118,29 +123,29 @@ int main(int argc, char *argv[])
 	ts = argv[2];
 	if(!strcmp(ts, "--shell"))
 	{
-		format = SHSQL_SHELL;
+		parse = read_tuple_shell;
 		c++;
 	}
 	else if(!strcmp(ts, "--csv"))
 	{
-		format = SHSQL_CSV;
+		parse = read_tuple_csv;
 		c++;
 	}
 	else if(!strcmp(ts, "--colon"))
 	{
-		format = SHSQL_COLON;
+		parse = read_tuple_delim;
 		fchr = ':';
 		c++;
 	}
 	else if(!strcmp(ts, "--pipe"))
 	{
-		format = SHSQL_PIPE;
+		parse = read_tuple_delim;
 		fchr = '|';
 		c++;
 	}
 	else if(!strcmp(ts, "--tab"))
 	{
-		format = SHSQL_TAB;
+		parse = read_tuple_delim;
 		fchr = '\t';
 		c++;
 	}
@@ -150,7 +155,6 @@ int main(int argc, char *argv[])
 		string_cat(str, argv[c]);
 		if(c < argc - 1) string_cat_c(str, ' ');
 	}
-
 
 	/*
 	 * Prepare the SQL.......
@@ -174,7 +178,7 @@ int main(int argc, char *argv[])
 	 */
 
 
-	while(shsql_getline(arrin, format, fchr) >= 0)
+	while(parse(arrin, fchr) >= 0)
 	{
 		j = 0;
 		i = 0;
@@ -369,27 +373,7 @@ int out_put_c(strarr *arr, char c)
 	return strarr_put_c(arr, c);
 }
 
-int read_tuple_simple(strarr *arr, char fchr);
-int read_tuple_csv(strarr *arr, char fchr);
-int read_tuple_shell(strarr *arr, char fchr);
-
-int shsql_getline(strarr *arr, char format, char fchr)
-{
-	switch(format) {
-
-	case SHSQL_SHELL:
-		return read_tuple_shell(arr, fchr);
-	case SHSQL_CSV:
-		return read_tuple_csv(arr, fchr);
-	case SHSQL_PIPE:
-	case SHSQL_COLON:
-	case SHSQL_TAB:
-		return read_tuple_simple(arr, fchr);
-	}
-	return 0;
-}
-
-int read_tuple_shell(strarr *arr, char fchr)
+int read_tuple_shell(strarr *arr, char _)
 {
 	int ic;
 	char c;
@@ -477,7 +461,7 @@ int read_tuple_shell(strarr *arr, char fchr)
 	return 0;
 }
 
-int read_tuple_csv(strarr *arr, char fchr)
+int read_tuple_csv(strarr *arr, char _)
 {
 	int ic;
 	char c;
@@ -589,7 +573,7 @@ int read_tuple_csv(strarr *arr, char fchr)
 	return 0;
 }
 
-int read_tuple_simple(strarr *arr, char fchr)
+int read_tuple_delim(strarr *arr, char fchr)
 {
 	int ic;
 	char c;
