@@ -45,11 +45,12 @@
 #include "traperr.h"
 
 
-typedef int (shsqlinp_parser)(strarr *arr, char fsep);
+typedef int (char_consumer)(strarr *arr, char c);
+typedef int (shsqlinp_parser)(strarr *arr, char_consumer *out_put_c, char fsep);
 
-int read_tuple_delim(strarr *arr, char fsep);
-int read_tuple_csv(strarr *arr, char);
-int read_tuple_shell(strarr *arr, char);
+int read_tuple_delim(strarr *arr, char_consumer *out_put_c, char fsep);
+int read_tuple_csv(strarr *arr, char_consumer *out_put_c, char);
+int read_tuple_shell(strarr *arr, char_consumer *out_put_c, char);
 
 int getargpos(strarr *arr, char const *s);
 int out_put_c(strarr *arr, char c);
@@ -178,7 +179,7 @@ int main(int argc, char *argv[])
 	 */
 
 
-	while(parse(arrin, fchr) >= 0)
+	while(parse(arrin, out_put_c, fchr) >= 0)
 	{
 		j = 0;
 		i = 0;
@@ -373,7 +374,7 @@ int out_put_c(strarr *arr, char c)
 	return strarr_put_c(arr, c);
 }
 
-int read_tuple_shell(strarr *arr, char _)
+int read_tuple_shell(strarr *arr, char_consumer *out_put_c, char _)
 {
 	int ic;
 	char c;
@@ -461,7 +462,7 @@ int read_tuple_shell(strarr *arr, char _)
 	return 0;
 }
 
-int read_tuple_csv(strarr *arr, char _)
+int read_tuple_csv(strarr *arr, char_consumer *out_put_c, char _)
 {
 	int ic;
 	char c;
@@ -573,7 +574,7 @@ int read_tuple_csv(strarr *arr, char _)
 	return 0;
 }
 
-int read_tuple_delim(strarr *arr, char fchr)
+int read_tuple_delim(strarr *arr, char_consumer *out_put_c, char fchr)
 {
 	int ic;
 	char c;
