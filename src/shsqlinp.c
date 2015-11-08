@@ -44,13 +44,19 @@
 #include "strarr.h"
 #include "traperr.h"
 
-
 typedef int (char_consumer)(strarr *arr, char c);
-typedef int (shsqlinp_parser)(strarr *arr, char_consumer *out_put_c, char fsep);
 
-int read_tuple_delim(strarr *arr, char_consumer *out_put_c, char fsep);
-int read_tuple_csv(strarr *arr, char_consumer *out_put_c, char);
-int read_tuple_shell(strarr *arr, char_consumer *out_put_c, char);
+struct shsqlinp_input
+{
+	char_consumer *consume;
+	char fsep;
+};
+
+typedef int (shsqlinp_parser)(struct shsqlinp_input *ctx, strarr *arr);
+
+int read_tuple_delim(struct shsqlinp_input *ctx, strarr *arr);
+int read_tuple_csv(struct shsqlinp_input *ctx, strarr *arr);
+int read_tuple_shell(struct shsqlinp_input *ctx, strarr *arr);
 
 int getargpos(strarr *arr, char const *s);
 int out_put_c(strarr *arr, char c);
@@ -62,13 +68,15 @@ int mode = SHSQL_POSTGRES;
 
 int main(int argc, char *argv[])
 {
-
 	string *str;
 	char *ts;
 	message *mes;
 	long key;
 	shsqlinp_parser *parse = read_tuple_shell;
-	char fchr = 0;
+	struct shsqlinp_input ctx = {
+		out_put_c,
+		0
+	};
 	strarr *arr, *arrin;
 	char *t;
 	int numstr;
@@ -135,19 +143,19 @@ int main(int argc, char *argv[])
 	else if(!strcmp(ts, "--colon"))
 	{
 		parse = read_tuple_delim;
-		fchr = ':';
+		ctx.fsep = ':';
 		c++;
 	}
 	else if(!strcmp(ts, "--pipe"))
 	{
 		parse = read_tuple_delim;
-		fchr = '|';
+		ctx.fsep = '|';
 		c++;
 	}
 	else if(!strcmp(ts, "--tab"))
 	{
 		parse = read_tuple_delim;
-		fchr = '\t';
+		ctx.fsep = '\t';
 		c++;
 	}
 
@@ -179,7 +187,7 @@ int main(int argc, char *argv[])
 	 */
 
 
-	while(parse(arrin, out_put_c, fchr) >= 0)
+	while(parse(&ctx, arrin) >= 0)
 	{
 		j = 0;
 		i = 0;
@@ -374,7 +382,7 @@ int out_put_c(strarr *arr, char c)
 	return strarr_put_c(arr, c);
 }
 
-int read_tuple_shell(strarr *arr, char_consumer *out_put_c, char _)
+int read_tuple_shell(struct shsqlinp_input *ctx, strarr *arr)
 {
 	int ic;
 	char c;
@@ -457,12 +465,12 @@ int read_tuple_shell(strarr *arr, char_consumer *out_put_c, char _)
 				lmode = 2;
 		}
 
-		if(c) out_put_c(arr, c);
+		if(c) ctx->consume(arr, c);
 	}
 	return 0;
 }
 
-int read_tuple_csv(strarr *arr, char_consumer *out_put_c, char _)
+int read_tuple_csv(struct shsqlinp_input *ctx, strarr *arr)
 {
 	int ic;
 	char c;
@@ -569,12 +577,12 @@ int read_tuple_csv(strarr *arr, char_consumer *out_put_c, char _)
 			c = 0;
 		}
 
-		if(c) out_put_c(arr, c);
+		if(c) ctx->consume(arr, c);
 	}
 	return 0;
 }
 
-int read_tuple_delim(strarr *arr, char_consumer *out_put_c, char fchr)
+int read_tuple_delim(struct shsqlinp_input *ctx, strarr *arr)
 {
 	int ic;
 	char c;
@@ -607,7 +615,7 @@ int read_tuple_delim(strarr *arr, char_consumer *out_put_c, char fchr)
 		{
 			if(c < '0' || c > '7' || numl >= 3)
 			{
-				out_put_c(arr, d);
+				ctx->consume(arr, d);
 				lmode = 1;
 				d = 0;
 				numl = 0;
@@ -616,7 +624,7 @@ int read_tuple_delim(strarr *arr, char_consumer *out_put_c, char fchr)
 
 		if(lmode == 0)	/* Start of field */
 		{
-			if(c == fchr)
+			if(c == ctx->fsep)
 			{
 				strarr_end(arr);
 				c = 0;
@@ -641,7 +649,7 @@ int read_tuple_delim(strarr *arr, char_consumer *out_put_c, char fchr)
 				c = 0;
 				numl = 0;
 			}
-			else if(c == fchr)
+			else if(c == ctx->fsep)
 			{
 				strarr_end(arr);
 				c = 0;
@@ -691,7 +699,7 @@ int read_tuple_delim(strarr *arr, char_consumer *out_put_c, char fchr)
 			}
 		}
 
-		if(c) out_put_c(arr, c);
+		if(c) ctx->consume(arr, c);
 	}
 	return 0;
 }
