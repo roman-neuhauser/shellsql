@@ -59,11 +59,9 @@ int read_tuple_csv(struct shsqlinp_input *ctx, strarr *arr);
 int read_tuple_shell(struct shsqlinp_input *ctx, strarr *arr);
 
 int getargpos(strarr *arr, char const *s);
-int out_put_c(strarr *arr, char c);
 
-
-int mode = SHSQL_POSTGRES;
-
+int consume_postgres(strarr *arr, char c);
+int consume_default(strarr *arr, char c);
 
 
 int main(int argc, char *argv[])
@@ -74,7 +72,7 @@ int main(int argc, char *argv[])
 	long key;
 	shsqlinp_parser *parse = read_tuple_shell;
 	struct shsqlinp_input ctx = {
-		out_put_c,
+		consume_postgres,
 		0
 	};
 	strarr *arr, *arrin;
@@ -113,18 +111,18 @@ int main(int argc, char *argv[])
 	if(t != NULL)
 	{
 		if(!strcmp(t, "postgres"))
-			mode = SHSQL_POSTGRES;
+			ctx.consume = consume_postgres;
 		else if(!strcmp(t, "mysql"))
-			mode = SHSQL_MYSQL;
+			ctx.consume = consume_default;
 		else if(!strcmp(t, "sqlite3"))
-			mode = SHSQL_SQLITE3;
+			ctx.consume = consume_default;
 		else if(!strcmp(t, "odbc"))
-			mode = SHSQL_ODBC;
+			ctx.consume = consume_default;
 		else
-			mode = SHSQL_POSTGRES;
+			ctx.consume = consume_postgres;
 	}
 	else
-		mode = SHSQL_POSTGRES;
+		ctx.consume = consume_postgres;
 
 	str = new_string();
 
@@ -369,14 +367,22 @@ int getargpos(strarr *arr, char const *s)
 /*
  * This stuff needs to escape things....
  */
-int out_put_c(strarr *arr, char c)
+int consume_default(strarr *arr, char c)
 {
 	switch(c) {
 	case '\'':
 		strarr_put_c(arr, '\\');
 		break;
+	}
+	return strarr_put_c(arr, c);
+}
+
+int consume_postgres(strarr *arr, char c)
+{
+	switch(c) {
+	case '\'':
 	case '\\':
-		if(mode == SHSQL_POSTGRES) strarr_put_c(arr, '\\');
+		strarr_put_c(arr, '\\');
 		break;
 	}
 	return strarr_put_c(arr, c);
