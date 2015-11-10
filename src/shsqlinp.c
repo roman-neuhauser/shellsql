@@ -44,10 +44,13 @@
 #include "strarr.h"
 #include "traperr.h"
 
+
+typedef int (char_producer)();
 typedef int (char_consumer)(strarr *arr, char c);
 
 struct shsqlinp_input
 {
+	char_producer *getchar;
 	char_consumer *consume;
 	char fsep;
 };
@@ -72,6 +75,7 @@ int main(int argc, char *argv[])
 	long key;
 	shsqlinp_parser *parse = read_tuple_shell;
 	struct shsqlinp_input ctx = {
+		getchar,
 		consume_postgres,
 		0
 	};
@@ -364,6 +368,11 @@ int getargpos(strarr *arr, char const *s)
 
 
 
+int shsqlinp_getchar(struct shsqlinp_input *ctx)
+{
+	return ctx->getchar();
+}
+
 /*
  * This stuff needs to escape things....
  */
@@ -400,7 +409,7 @@ int read_tuple_shell(struct shsqlinp_input *ctx, strarr *arr)
 
 	for(;;)
 	{
-		ic = getchar();
+		ic = shsqlinp_getchar(ctx);
 		if(ic == EOF) return -1;
 		c = (char) ic;
 
@@ -487,7 +496,7 @@ int read_tuple_csv(struct shsqlinp_input *ctx, strarr *arr)
 
 	for(;;)
 	{
-		ic = getchar();
+		ic = shsqlinp_getchar(ctx);
 		if(ic == EOF) return -1;
 		c = (char) ic;
 
@@ -601,7 +610,7 @@ int read_tuple_delim(struct shsqlinp_input *ctx, strarr *arr)
 
 	for(;;)
 	{
-		ic = getchar();
+		ic = shsqlinp_getchar(ctx);
 		if(ic == EOF) return -1;
 		c = (char) ic;
 
