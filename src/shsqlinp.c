@@ -37,6 +37,7 @@
  */
 
 #include <stdio.h>
+#include <err.h>
 
 #include "string.h"
 #include "message.h"
@@ -485,15 +486,90 @@ int read_tuple_shell(struct shsqlinp_input *ctx, strarr *arr)
 	return 0;
 }
 
+void rtrim(strarr *arr)
+{
+	while(strarr_last(arr) <= ' ') strarr_minus(arr);
+}
+
 int read_tuple_csv(struct shsqlinp_input *ctx, strarr *arr)
 {
 	int ic;
+	int is_quoted = 0;
 	char c;
 
 	int lmode = 0;
 
 	strarr_clear(arr);
 
+#if 1
+	for(;;)
+	{
+nextchar:
+		ic = shsqlinp_getchar(ctx);
+		if(ic == EOF) return -1;
+		c = (char) ic;
+
+		switch (lmode) {
+		case 0: /* start of field */
+				if (c == ' ' || c == '\t') {
+						goto nextchar;
+				}
+				lmode = 1;
+				if (c == '"') {
+						lmode = 2;
+						is_quoted = 0;
+						goto nextchar;
+				}
+				ctx->consume(arr, c);
+				goto nextchar;
+		case 1: /* within unquoted field */
+				if (c == ',') {
+						rtrim(arr);
+						lmode = 0;
+						goto nextchar;
+				}
+				ctx->consume(arr, c);
+				goto nextchar;
+		case 2: /* after opening quote, embedded quotes are represented by doubling */
+				if (is_quoted) {
+					switch (c) {
+					case '"':
+							ctx->consume(arr, c);
+							break;
+					/* turns out the preceding quote was the field-terminating kind,
+					 * not the quote-quoting one.  that may still be ok. */
+					case ' ':
+					case '\t':
+							lmode = 3;
+							goto nextchar;
+					case ',':
+							strarr_end(arr);
+							lmode = 1;
+							goto nextchar;
+					default:
+							errx(2, "syntax error, trailing garbage");
+					}
+				} else {
+					if (c == '"') {
+						is_quoted = 1;
+						goto nextchar;
+					} else {
+						ctx->consume(arr, c);
+					}
+				}
+				break;
+		case 3: /* trailing ws after quoted value */
+				switch (c) {
+				case ',':
+						strarr_end(arr);
+				case ' ':
+				case '\t':
+						goto nextchar;
+				}
+				ctx->consume(arr, c);
+		}
+	}
+#else
 	for(;;)
 	{
 		ic = shsqlinp_getchar(ctx);
@@ -527,6 +603,7 @@ int read_tuple_csv(struct shsqlinp_input *ctx, strarr *arr)
 			else if(c == '"')
 			{
 				lmode = 2;
+				c = 0;
 			}
 			else if(c == '\n')
 			{
@@ -558,7 +635,6 @@ int read_tuple_csv(struct shsqlinp_input *ctx, strarr *arr)
 			if(c == '"')
 			{
 				lmode = 3;
-				c = 0;
 			}
 		}
 		else if(lmode == 3)	/* In field - quote - come accross a quote */
@@ -594,6 +670,7 @@ int read_tuple_csv(struct shsqlinp_input *ctx, strarr *arr)
 
 		if(c) ctx->consume(arr, c);
 	}
+#endif
 	return 0;
 }
 
